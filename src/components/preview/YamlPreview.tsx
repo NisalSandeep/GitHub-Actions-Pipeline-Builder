@@ -17,11 +17,14 @@ import {
   Search,
   X,
 } from 'lucide-react';
+import { GitHubIcon } from '../icons/BrandIcons';
+import { CommitToGitHubModal } from './CommitToGitHubModal';
 
 export const YamlPreview: React.FC = () => {
   const { yaml, state } = useWorkflow();
   const [copied, setCopied] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
+  const [commitModalOpen, setCommitModalOpen] = useState(false);
   const [wrapLines, setWrapLines] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -255,7 +258,7 @@ export const YamlPreview: React.FC = () => {
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-200 ${
               downloadSuccess
                 ? 'bg-[#238636] border-[#2ea043] text-white shadow-lg shadow-green-500/20 ring-2 ring-[#2ea043]/30'
-                : 'bg-[#238636]/90 hover:bg-[#238636] border-[#2ea043] text-white shadow-sm'
+                : 'bg-[#21262d] hover:bg-[#30363d] border-[#30363d] hover:border-[#8b949e] text-[#f0f6fc]'
             }`}
           >
             {downloadSuccess ? (
@@ -269,6 +272,17 @@ export const YamlPreview: React.FC = () => {
                 <span>Download .yml</span>
               </>
             )}
+          </button>
+
+          {/* Commit directly to GitHub Repository Button */}
+          <button
+            type="button"
+            onClick={() => setCommitModalOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#238636]/90 hover:bg-[#238636] border border-[#2ea043] text-white shadow-sm hover:shadow-green-500/20 transition-all duration-200 group"
+            title="Commit generated workflow directly to your GitHub repository"
+          >
+            <GitHubIcon className="w-3.5 h-3.5 text-white group-hover:scale-110 transition-transform" />
+            <span>Commit to GitHub</span>
           </button>
         </div>
       </div>
@@ -306,6 +320,14 @@ export const YamlPreview: React.FC = () => {
         })}
       </div>
     </div>
+
+    {/* Commit directly to GitHub Modal */}
+    <CommitToGitHubModal
+      isOpen={commitModalOpen}
+      onClose={() => setCommitModalOpen(false)}
+      yaml={yaml}
+      defaultFilename={state.global.filename}
+    />
     </>
   );
 };
