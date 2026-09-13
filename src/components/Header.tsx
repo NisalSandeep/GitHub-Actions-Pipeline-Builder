@@ -85,11 +85,11 @@ export const Header: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-[#30363d] bg-[#161b22]/95 backdrop-blur-md px-4 lg:px-8 py-3 transition-colors">
+    <header className="sticky top-0 z-40 w-full border-b border-white/[0.08] bg-[#0d1117]/75 backdrop-blur-2xl px-4 lg:px-8 py-3 transition-colors shadow-[0_4px_30px_rgba(0,0,0,0.4),inset_0_-1px_0_rgba(255,255,255,0.03)]">
       <div className="mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
         {/* Brand & Title */}
         <div className="flex items-center gap-3 w-full md:w-auto">
-          <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-[#2f81f7] to-[#1f6feb] text-white shadow-lg shadow-blue-500/20">
+          <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-[#2f81f7] to-[#1f6feb] text-white shadow-lg shadow-blue-500/25 ring-1 ring-white/20">
             <svg
               className="w-6 h-6 fill-current"
               viewBox="0 0 24 24"
@@ -107,32 +107,32 @@ export const Header: React.FC = () => {
               <h1 className="text-lg font-bold text-[#f0f6fc] tracking-tight">
                 GitHub Actions Pipeline Studio
               </h1>
-              <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-[#238636]/20 text-[#3fb950] border border-[#238636]/40">
+              <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-[#238636]/20 text-[#3fb950] border border-[#238636]/40 shadow-sm shadow-green-950/30">
                 v2.0
               </span>
             </div>
-            <p className="text-xs text-[#8b949e] hidden sm:block">
+            <p className="text-xs text-[#94a3b8] hidden sm:block">
               Visual workflow architect with multi-job deployment orchestration
             </p>
           </div>
         </div>
 
-        {/* Quick Stats Badges */}
+        {/* Quick Stats Badges with Frosted Glass Pills */}
         <div className="hidden xl:flex items-center gap-2 text-xs">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#21262d] border border-[#30363d] text-[#8b949e]">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] backdrop-blur-md text-[#94a3b8] shadow-sm transition-all">
             <GitBranch className="w-3.5 h-3.5 text-[#58a6ff]" />
             <span>Triggers: <strong className="text-[#f0f6fc]">{triggersCount}</strong></span>
           </div>
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#21262d] border border-[#30363d] text-[#8b949e]">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] backdrop-blur-md text-[#94a3b8] shadow-sm transition-all">
             <Layers className="w-3.5 h-3.5 text-[#a371f7]" />
             <span>Jobs: <strong className="text-[#f0f6fc]">{jobsCount}</strong></span>
           </div>
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#21262d] border border-[#30363d] text-[#8b949e]">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] backdrop-blur-md text-[#94a3b8] shadow-sm transition-all">
             <FileCode2 className="w-3.5 h-3.5 text-[#3fb950]" />
             <span>Steps: <strong className="text-[#f0f6fc]">{state.steps.length}</strong></span>
           </div>
           {requiredSecrets.length > 0 && (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#388bfd1a] border border-[#388bfd4d] text-[#79c0ff]">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#388bfd]/15 border border-[#388bfd]/40 text-[#79c0ff] backdrop-blur-md shadow-sm">
               <KeyRound className="w-3.5 h-3.5 text-[#58a6ff]" />
               <span>Secrets: <strong className="text-white">{requiredSecrets.length}</strong></span>
             </div>
@@ -145,7 +145,7 @@ export const Header: React.FC = () => {
           <div className="relative">
             <button
               onClick={() => setPresetDropdownOpen(!presetDropdownOpen)}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#21262d] hover:bg-[#30363d] text-[#f0f6fc] text-xs font-medium border border-[#30363d] transition-all hover:border-[#58a6ff]"
+              className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-[#f0f6fc] text-xs font-semibold border border-white/[0.09] hover:border-[#58a6ff]/50 backdrop-blur-md shadow-sm transition-all active:scale-95"
               title="Load standard production workflow templates"
             >
               <Sparkles className="w-3.5 h-3.5 text-[#f0883e]" />
@@ -164,10 +164,10 @@ export const Header: React.FC = () => {
                     initial={{ opacity: 0, y: -6, scale: 0.96 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -6, scale: 0.96 }}
-                    transition={{ duration: 0.14, ease: 'easeOut' }}
-                    className="absolute right-0 mt-2 w-80 rounded-xl bg-[#1f242c] border border-[#30363d] shadow-2xl p-2 z-50"
+                    transition={{ duration: 0.15, ease: 'easeOut' }}
+                    className="absolute right-0 mt-2 w-80 rounded-2xl bg-[#161b22]/90 border border-white/[0.12] backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.08)] p-2 z-50"
                   >
-                    <div className="px-3 py-2 text-[11px] font-semibold text-[#8b949e] uppercase tracking-wider border-b border-[#30363d]/50">
+                    <div className="px-3 py-2 text-[11px] font-semibold text-[#8b949e] uppercase tracking-wider border-b border-white/[0.08]">
                       Production Starter Templates
                     </div>
                     <div className="py-1 space-y-1 max-h-84 overflow-y-auto">
@@ -216,7 +216,7 @@ export const Header: React.FC = () => {
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
               resetSuccess
                 ? 'bg-[#238636] border-[#2ea043] text-white'
-                : 'bg-[#21262d] hover:bg-[#b62324]/20 hover:border-[#f85149]/50 hover:text-[#f85149] text-[#8b949e] border-[#30363d]'
+                : 'bg-white/[0.04] hover:bg-red-500/10 hover:border-red-500/40 hover:text-[#ff7b72] text-[#94a3b8] border-white/[0.08] backdrop-blur-md'
             }`}
             title="Reset workflow to default Node.js CI"
           >
@@ -238,7 +238,7 @@ export const Header: React.FC = () => {
             href="https://docs.github.com/en/actions"
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#21262d] hover:bg-[#30363d] text-[#8b949e] hover:text-[#f0f6fc] text-xs font-medium border border-[#30363d] transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-[#94a3b8] hover:text-[#f0f6fc] text-xs font-semibold border border-white/[0.08] hover:border-white/[0.15] backdrop-blur-md shadow-sm transition-all"
           >
             <span>Docs</span>
             <ExternalLink className="w-3 h-3" />

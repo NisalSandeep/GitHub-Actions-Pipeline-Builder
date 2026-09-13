@@ -96,7 +96,7 @@ export const GlobalSettingsSection: React.FC = () => {
             value={state.global.workflowName}
             onChange={(e) => updateGlobal({ workflowName: e.target.value })}
             placeholder="e.g. CI/CD Pipeline"
-            className="w-full px-3 py-2 text-xs bg-[#0d1117] border border-[#30363d] rounded-lg text-[#f0f6fc] placeholder-[#6e7681] focus:outline-none focus:border-[#58a6ff] focus:ring-1 focus:ring-[#58a6ff]"
+            className="w-full px-3 py-2 text-xs bg-[#0d1117]/60 border border-white/[0.09] rounded-xl text-[#f0f6fc] placeholder-[#6e7681] focus:outline-none focus:border-[#58a6ff] focus:bg-[#0d1117]/90 transition-all backdrop-blur-md"
           />
         </div>
 
@@ -105,14 +105,14 @@ export const GlobalSettingsSection: React.FC = () => {
             <Server className="w-3.5 h-3.5 text-[#a371f7]" />
             Workflow File Path
           </label>
-          <div className="flex items-center text-xs text-[#8b949e] bg-[#0d1117] border border-[#30363d] rounded-lg px-3 py-2">
+          <div className="flex items-center text-xs text-[#8b949e] bg-[#0d1117]/60 border border-white/[0.09] rounded-xl px-3 py-2 backdrop-blur-md">
             <span className="text-[#6e7681]">.github/workflows/</span>
             <input
               type="text"
               value={state.global.filename}
               onChange={(e) => updateGlobal({ filename: e.target.value })}
               placeholder="main.yml"
-              className="bg-transparent text-[#f0f6fc] focus:outline-none flex-1 ml-0.5"
+              className="bg-transparent text-[#f0f6fc] focus:outline-none flex-1 ml-0.5 font-mono"
             />
           </div>
         </div>
@@ -135,22 +135,17 @@ export const GlobalSettingsSection: React.FC = () => {
                 key={runner.id}
                 type="button"
                 onClick={() => updateGlobal({ runsOn: runner.id })}
-                className={`flex items-start gap-3 p-2.5 rounded-lg border text-left transition-all ${
+                className={`flex items-start gap-3 p-3 rounded-2xl border text-left transition-all ${
                   isSelected
-                    ? 'bg-[#1f6feb]/10 border-[#388bfd] ring-1 ring-[#388bfd]'
-                    : 'bg-[#161b22] border-[#30363d] hover:border-[#8b949e]/50 hover:bg-[#21262d]'
+                    ? 'bg-[#1f6feb]/20 border-[#58a6ff] ring-1 ring-[#58a6ff]/50 shadow-[0_0_20px_rgba(56,139,253,0.2),inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-xl'
+                    : 'bg-[#161b22]/60 border-white/[0.08] hover:border-[#58a6ff]/40 hover:bg-[#21262d]/70 backdrop-blur-xl shadow-sm'
                 }`}
               >
-                <div className="p-1.5 rounded-md bg-[#0d1117] border border-[#30363d]/60 mt-0.5 shrink-0 flex items-center justify-center">
+                <div className="p-1.5 rounded-xl bg-[#0d1117]/80 border border-white/[0.08] shrink-0 mt-0.5">
                   {runner.icon}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <div className="text-xs font-semibold text-[#f0f6fc]">{runner.name}</div>
-                    {isSelected && (
-                      <span className="w-2 h-2 rounded-full bg-[#388bfd] animate-pulse" />
-                    )}
-                  </div>
+                <div className="min-w-0">
+                  <div className="text-xs font-bold text-[#f0f6fc]">{runner.name}</div>
                   <div className="text-[11px] text-[#8b949e] truncate">{runner.desc}</div>
                 </div>
               </button>
@@ -166,7 +161,7 @@ export const GlobalSettingsSection: React.FC = () => {
           Trigger Events (<code className="text-[#79c0ff]">on:</code>)
         </label>
 
-        <div className="space-y-3 bg-[#0d1117] p-3.5 rounded-xl border border-[#30363d]">
+        <div className="space-y-3 bg-[#0d1117]/65 p-4 rounded-2xl border border-white/[0.08] backdrop-blur-xl shadow-inner">
           {/* Push Trigger */}
           <div className="space-y-2">
             <label className="flex items-center justify-between cursor-pointer select-none">

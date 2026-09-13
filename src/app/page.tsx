@@ -11,12 +11,20 @@ export default function Home() {
   return (
     <ToastProvider>
       <WorkflowProvider>
-        <div className="min-h-screen bg-[#0d1117] text-[#f0f6fc] flex flex-col selection:bg-[#2f81f7] selection:text-white">
+        <div className="relative min-h-screen bg-[#0d1117] text-[#f0f6fc] flex flex-col selection:bg-[#2f81f7] selection:text-white overflow-x-hidden">
+          {/* Ambient Frosted Glass Atmospheric Glows */}
+          <div className="fixed -top-40 -left-40 w-[650px] h-[650px] bg-gradient-to-br from-[#388bfd]/15 to-[#1f6feb]/5 rounded-full blur-[140px] pointer-events-none -z-10 animate-pulse" style={{ animationDuration: '8s' }} />
+          <div className="fixed top-28 -right-40 w-[600px] h-[600px] bg-gradient-to-bl from-[#a371f7]/12 to-[#8957e5]/5 rounded-full blur-[150px] pointer-events-none -z-10" />
+          <div className="fixed bottom-10 left-1/3 w-[550px] h-[450px] bg-gradient-to-tr from-[#238636]/10 to-transparent rounded-full blur-[160px] pointer-events-none -z-10" />
+          
+          {/* Subtle Cybernetic Grid Pattern with Vignette */}
+          <div className="fixed inset-0 bg-[radial-gradient(#30363d_1px,transparent_1px)] [background-size:24px_24px] opacity-20 pointer-events-none -z-10 [mask-image:radial-gradient(ellipse_70%_60%_at_50%_10%,#000_60%,transparent_100%)]" />
+
           {/* Global Navigation Header */}
           <Header />
 
         {/* Main Split-Screen Workspace */}
-        <main className="flex-1 max-w-[1680px] w-full mx-auto px-4 lg:px-8 py-6">
+        <main className="flex-1 max-w-[1680px] w-full mx-auto px-4 lg:px-8 py-6 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             {/* Left Panel: The Visual Builder (Scrollable) */}
             <section className="lg:col-span-6 xl:col-span-6 w-full">
@@ -55,7 +63,7 @@ export default function Home() {
         </main>
 
         {/* Footer */}
-        <footer className="mt-auto border-t border-[#30363d]/50 bg-[#161b22]/50 py-4 px-4 text-center text-xs text-[#8b949e]">
+        <footer className="mt-auto border-t border-white/[0.08] bg-[#121620]/60 backdrop-blur-xl py-4 px-4 text-center text-xs text-[#8b949e]">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
             <span>
               GitHub Actions Workflow Generator • Built for production CI/CD pipelines

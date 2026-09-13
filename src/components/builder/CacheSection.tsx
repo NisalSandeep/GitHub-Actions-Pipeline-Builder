@@ -27,19 +27,19 @@ export const CacheSection: React.FC = () => {
   return (
     <div className="space-y-4">
       {/* Primary Cache Switch */}
-      <div className="p-4 rounded-xl bg-[#0d1117] border border-[#30363d] flex items-center justify-between">
+      <div className="p-4.5 rounded-2xl bg-[#161b22]/60 border border-white/[0.08] backdrop-blur-xl flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-[#388bfd1a] border border-[#388bfd33]">
+          <div className="p-2.5 rounded-xl bg-[#388bfd]/15 border border-[#388bfd]/30">
             <HardDrive className="w-5 h-5 text-[#58a6ff]" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-[#f0f6fc]">Enable Dependency Caching</span>
-              <span className="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-[#238636]/20 text-[#3fb950] border border-[#238636]/40">
+              <span className="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-[#238636]/20 text-[#3fb950] border border-[#238636]/40 shadow-sm shadow-green-950/20">
                 Speed Boost (Up to 5x)
               </span>
             </div>
-            <p className="text-[11px] text-[#8b949e]">
+            <p className="text-[11px] text-[#94a3b8]">
               Reuse downloaded package dependencies and compiler artifacts between pipeline runs.
             </p>
           </div>
@@ -52,14 +52,14 @@ export const CacheSection: React.FC = () => {
             onChange={(e) => updateCaching({ enabled: e.target.checked })}
             className="sr-only peer"
           />
-          <div className="w-11 h-6 bg-[#21262d] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#238636]"></div>
+          <div className="w-11 h-6 bg-white/[0.08] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#238636]"></div>
         </label>
       </div>
 
       {state.caching.enabled && (
-        <div className="p-4 rounded-xl bg-[#0d1117] border border-[#30363d] space-y-4 animate-fade-in">
-          <div className="flex items-start gap-2 text-xs text-[#8b949e] bg-[#161b22] p-3 rounded-lg border border-[#30363d]">
-            <Zap className="w-4 h-4 text-[#f0883e] shrink-0 mt-0.5" />
+        <div className="p-4.5 rounded-2xl bg-[#0d1117]/65 border border-white/[0.08] backdrop-blur-xl shadow-inner space-y-4 animate-fade-in">
+          <div className="flex items-start gap-2.5 text-xs text-[#94a3b8] bg-white/[0.03] p-3.5 rounded-xl border border-white/[0.08]">
+            <Zap className="w-4 h-4 text-[#ffa657] shrink-0 mt-0.5" />
             <div>
               <span className="font-semibold text-[#f0f6fc]">Auto-Optimized Strategy: </span>
               {getLanguageCacheExplanation()}
@@ -76,7 +76,7 @@ export const CacheSection: React.FC = () => {
                 value={state.caching.cacheKeyPrefix}
                 onChange={(e) => updateCaching({ cacheKeyPrefix: e.target.value })}
                 placeholder="deps"
-                className="w-full px-3 py-1.5 text-xs bg-[#161b22] border border-[#30363d] rounded-lg text-[#f0f6fc] font-mono focus:outline-none focus:border-[#58a6ff]"
+                className="w-full px-3 py-1.5 text-xs bg-[#0d1117]/60 border border-white/[0.09] rounded-xl text-[#f0f6fc] font-mono focus:outline-none focus:border-[#58a6ff] focus:bg-[#0d1117]/90"
               />
               <span className="text-[10px] text-[#8b949e]">Prefix used for {'${{ runner.os }}'}-key hash</span>
             </div>
@@ -90,7 +90,7 @@ export const CacheSection: React.FC = () => {
                 onChange={(e) => updateCaching({ customPaths: e.target.value })}
                 placeholder=".next/cache&#10;~/.cache/pip"
                 rows={2}
-                className="w-full px-3 py-1.5 text-xs bg-[#161b22] border border-[#30363d] rounded-lg text-[#f0f6fc] font-mono focus:outline-none focus:border-[#58a6ff]"
+                className="w-full px-3 py-1.5 text-xs bg-[#0d1117]/60 border border-white/[0.09] rounded-xl text-[#f0f6fc] font-mono focus:outline-none focus:border-[#58a6ff] focus:bg-[#0d1117]/90"
               />
               <span className="text-[10px] text-[#8b949e]">One path per line (e.g. .next/cache)</span>
             </div>

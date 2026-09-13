@@ -27,12 +27,12 @@ export const SecretsInspector: React.FC = () => {
 
   if (requiredSecrets.length === 0) {
     return (
-      <div className="rounded-2xl border border-[#30363d] bg-[#0d1117] p-8 text-center space-y-3">
-        <div className="w-12 h-12 rounded-full bg-[#238636]/20 border border-[#238636]/40 flex items-center justify-center mx-auto text-[#3fb950]">
+      <div className="rounded-2xl border border-white/[0.09] bg-[#0d1117]/80 backdrop-blur-2xl p-8 text-center space-y-3 shadow-[0_16px_40px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.08)]">
+        <div className="w-12 h-12 rounded-full bg-[#238636]/20 border border-[#238636]/40 flex items-center justify-center mx-auto text-[#3fb950] shadow-sm shadow-green-950/40">
           <CheckCircle2 className="w-6 h-6" />
         </div>
         <h3 className="text-sm font-bold text-[#f0f6fc]">No Custom Secrets Required</h3>
-        <p className="text-xs text-[#8b949e] max-w-sm mx-auto">
+        <p className="text-xs text-[#94a3b8] max-w-sm mx-auto">
           The current workflow runs using default repository permissions and public package registries.
         </p>
       </div>
@@ -40,8 +40,8 @@ export const SecretsInspector: React.FC = () => {
   }
 
   return (
-    <div className="rounded-2xl border border-[#30363d] bg-[#0d1117] p-5 space-y-5 shadow-2xl">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#21262d] pb-3">
+    <div className="rounded-2xl border border-white/[0.09] bg-[#0d1117]/80 backdrop-blur-2xl p-5 space-y-5 shadow-[0_16px_40px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.08)]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/[0.08] pb-3">
         <div className="flex items-center gap-2">
           <KeyRound className="w-4 h-4 text-[#58a6ff]" />
           <h3 className="text-xs font-bold text-[#f0f6fc]">
@@ -59,7 +59,7 @@ export const SecretsInspector: React.FC = () => {
           return (
             <div
               key={secret.name}
-              className="p-3.5 rounded-xl bg-[#161b22] border border-[#30363d] hover:border-[#58a6ff]/50 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 group"
+              className="p-4 rounded-2xl bg-[#161b22]/65 hover:bg-[#161b22]/85 border border-white/[0.08] hover:border-[#58a6ff]/40 backdrop-blur-xl transition-all shadow-sm hover:shadow-[0_8px_24px_rgba(0,0,0,0.35)] flex flex-col sm:flex-row sm:items-center justify-between gap-3 group"
             >
               <div className="space-y-1 min-w-0">
                 <div className="flex items-center gap-2">

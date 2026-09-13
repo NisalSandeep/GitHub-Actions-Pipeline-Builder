@@ -259,13 +259,13 @@ export const BuilderPanel: React.FC = () => {
         </div>
 
         {/* View Mode Toggle: Focus Mode (Single Pane) vs Accordion Mode */}
-        <div className="flex items-center gap-1 p-0.5 rounded-lg bg-[#161b22] border border-[#30363d] text-xs">
+        <div className="flex items-center gap-1 p-1 rounded-xl bg-white/[0.03] border border-white/[0.08] backdrop-blur-md text-xs">
           <button
             type="button"
             onClick={() => setViewMode('focused')}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11px] font-semibold transition-all ${
               viewMode === 'focused'
-                ? 'bg-[#21262d] text-[#58a6ff] shadow-sm'
+                ? 'bg-white/[0.08] text-[#58a6ff] shadow-sm border border-white/[0.1]'
                 : 'text-[#8b949e] hover:text-[#f0f6fc]'
             }`}
             title="Focus on one pane side-by-side with YAML preview"
@@ -276,9 +276,9 @@ export const BuilderPanel: React.FC = () => {
           <button
             type="button"
             onClick={() => setViewMode('accordion')}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11px] font-semibold transition-all ${
               viewMode === 'accordion'
-                ? 'bg-[#21262d] text-[#58a6ff] shadow-sm'
+                ? 'bg-white/[0.08] text-[#58a6ff] shadow-sm border border-white/[0.1]'
                 : 'text-[#8b949e] hover:text-[#f0f6fc]'
             }`}
             title="Accordion list mode"
@@ -290,7 +290,7 @@ export const BuilderPanel: React.FC = () => {
       </div>
 
       {/* Stepper Navigation Bar (5 Sections) */}
-      <div className="p-1 rounded-xl bg-[#161b22] border border-[#30363d] shadow-sm grid grid-cols-5 gap-1 select-none">
+      <div className="p-1.5 rounded-2xl bg-[#161b22]/70 border border-white/[0.08] backdrop-blur-xl shadow-lg grid grid-cols-5 gap-1.5 select-none">
         {sections.map((sec) => {
           const isActive = activeSection === sec.id;
           return (
@@ -298,24 +298,24 @@ export const BuilderPanel: React.FC = () => {
               key={sec.id}
               type="button"
               onClick={() => navigateToSection(sec.id)}
-              className={`relative flex flex-col sm:flex-row items-center justify-center gap-1.5 py-2 px-1.5 rounded-lg text-xs font-semibold transition-colors duration-150 z-10 ${
+              className={`relative flex flex-col sm:flex-row items-center justify-center gap-1.5 py-2 px-1.5 rounded-xl text-xs font-semibold transition-colors duration-150 z-10 ${
                 isActive
                   ? 'text-[#f0f6fc]'
-                  : 'text-[#8b949e] hover:text-[#f0f6fc] hover:bg-[#21262d]/40'
+                  : 'text-[#8b949e] hover:text-[#f0f6fc] hover:bg-white/[0.04]'
               }`}
             >
               {isActive && (
                 <motion.div
                   layoutId="activeSectionPill"
-                  className="absolute inset-0 rounded-lg bg-[#21262d] border border-[#388bfd]/50 shadow-md shadow-blue-950/20 -z-10"
+                  className="absolute inset-0 rounded-xl bg-[#21262d]/90 border border-[#388bfd]/60 shadow-lg shadow-blue-500/10 -z-10 backdrop-blur-md"
                   transition={{ type: 'spring', stiffness: 480, damping: 34 }}
                 />
               )}
               <span
-                className={`w-4 h-4 rounded-full text-[10px] flex items-center justify-center font-mono font-bold shrink-0 ${
+                className={`w-4 h-4 rounded-full text-[10px] flex items-center justify-center font-mono font-bold shrink-0 transition-colors ${
                   isActive
-                    ? 'bg-[#58a6ff] text-[#0d1117]'
-                    : 'bg-[#30363d] text-[#8b949e]'
+                    ? 'bg-[#58a6ff] text-[#0d1117] shadow-sm shadow-blue-500/30'
+                    : 'bg-white/[0.08] text-[#8b949e]'
                 }`}
               >
                 {sec.stepNum}
@@ -328,11 +328,11 @@ export const BuilderPanel: React.FC = () => {
 
       {/* VIEW MODE 1: FOCUS MODE (Shows ONLY the selected pane side-by-side with YAML) */}
       {viewMode === 'focused' && (
-        <div className="rounded-2xl border border-[#388bfd]/30 bg-[#161b22] shadow-xl overflow-hidden transition-all">
+        <div className="rounded-2xl border border-white/[0.1] bg-[#161b22]/75 backdrop-blur-2xl shadow-[0_16px_40px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.08)] overflow-hidden transition-all">
           {/* Active Pane Header */}
-          <div className="p-4 bg-[#1c2128]/80 border-b border-[#30363d] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="p-4.5 bg-white/[0.02] border-b border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-3.5 min-w-0">
-              <div className="p-2.5 rounded-xl bg-[#0d1117] border border-[#30363d] text-[#58a6ff] shrink-0 shadow-inner">
+              <div className="p-2.5 rounded-xl bg-[#0d1117]/80 border border-white/[0.08] text-[#58a6ff] shrink-0 shadow-inner">
                 {currentSection.icon}
               </div>
               <div className="min-w-0">
@@ -370,12 +370,12 @@ export const BuilderPanel: React.FC = () => {
           </div>
 
           {/* Bottom Stepper Navigation: Previous & Next Section Buttons */}
-          <div className="p-3.5 bg-[#12161c] border-t border-[#30363d] flex items-center justify-between gap-3">
+          <div className="p-3.5 bg-white/[0.015] border-t border-white/[0.08] flex items-center justify-between gap-3">
             {prevSection ? (
               <button
                 type="button"
                 onClick={() => navigateToSection(prevSection.id)}
-                className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#21262d] hover:bg-[#30363d] text-xs font-semibold text-[#f0f6fc] border border-[#30363d] transition-all hover:border-[#8b949e] active:scale-95"
+                className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-xs font-semibold text-[#f0f6fc] border border-white/[0.09] transition-all hover:border-[#58a6ff]/40 active:scale-95"
               >
                 <ArrowLeft className="w-3.5 h-3.5 text-[#8b949e]" />
                 <span>Previous: {prevSection.shortTitle}</span>
@@ -388,15 +388,15 @@ export const BuilderPanel: React.FC = () => {
               <button
                 type="button"
                 onClick={() => navigateToSection(nextSection.id)}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#238636] hover:bg-[#2ea043] text-xs font-semibold text-white shadow-lg shadow-green-950/40 transition-all active:scale-95 ml-auto"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#238636] hover:bg-[#2ea043] text-xs font-semibold text-white shadow-lg shadow-green-950/40 transition-all active:scale-95 ml-auto ring-1 ring-white/10"
               >
                 <span>Next: {nextSection.shortTitle}</span>
                 <ArrowRight className="w-3.5 h-3.5 text-white" />
               </button>
             ) : (
-              <div className="flex items-center gap-1.5 text-xs text-[#3fb950] font-semibold ml-auto px-3 py-1.5 rounded-lg bg-[#238636]/15 border border-[#238636]/30">
+              <div className="text-xs text-[#3fb950] font-semibold flex items-center gap-1.5 py-2 px-3 bg-[#238636]/15 rounded-xl border border-[#238636]/40">
                 <CheckCircle2 className="w-4 h-4" />
-                <span>All 5 Sections Configured</span>
+                <span>Pipeline Complete</span>
               </div>
             )}
           </div>
@@ -411,10 +411,10 @@ export const BuilderPanel: React.FC = () => {
             return (
               <div
                 key={sec.id}
-                className={`rounded-xl border transition-all duration-200 shadow-sm ${
+                className={`rounded-2xl border transition-all duration-200 shadow-sm backdrop-blur-xl ${
                   isOpen
-                    ? 'border-[#388bfd]/50 bg-[#161b22] shadow-blue-950/20'
-                    : 'border-[#30363d] bg-[#161b22]/90 hover:border-[#484f58]'
+                    ? 'border-[#388bfd]/60 bg-[#161b22]/80 shadow-[0_12px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.08)]'
+                    : 'border-white/[0.08] bg-[#161b22]/55 hover:bg-[#161b22]/75 hover:border-white/[0.15]'
                 }`}
               >
                 <button
@@ -423,10 +423,10 @@ export const BuilderPanel: React.FC = () => {
                     setOpenAccordion(isOpen ? null : sec.id);
                     setActiveSection(sec.id);
                   }}
-                  className="w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-[#21262d]/60 transition-colors group"
+                  className="w-full px-4.5 py-3.5 flex items-center justify-between text-left hover:bg-white/[0.03] transition-colors group rounded-2xl"
                 >
                   <div className="flex items-center gap-3.5 min-w-0">
-                    <div className="p-2 rounded-lg bg-[#0d1117] border border-[#30363d] text-[#58a6ff] shrink-0 flex items-center justify-center shadow-inner group-hover:border-[#58a6ff]/40 transition-colors">
+                    <div className="p-2 rounded-xl bg-[#0d1117]/80 border border-white/[0.08] text-[#58a6ff] shrink-0 flex items-center justify-center shadow-inner group-hover:border-[#58a6ff]/40 transition-colors">
                       {sec.icon}
                     </div>
                     <div className="min-w-0">
@@ -460,7 +460,7 @@ export const BuilderPanel: React.FC = () => {
                       transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
                       className="overflow-hidden"
                     >
-                      <div className="p-4 pt-3 border-t border-[#30363d]/60 bg-[#161b22]/40">
+                      <div className="p-4.5 pt-3 border-t border-white/[0.08] bg-white/[0.015]">
                         {renderSectionComponent(sec.id)}
                       </div>
                     </motion.div>

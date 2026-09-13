@@ -139,7 +139,7 @@ export const StepsBuilderSection: React.FC = () => {
           <button
             type="button"
             onClick={() => setTemplateModalOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-[#21262d] hover:bg-[#30363d] text-[#f0883e] border border-[#30363d] hover:border-[#f0883e]/50 transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-[#ffa657] border border-white/[0.08] hover:border-[#f0883e]/50 backdrop-blur-md shadow-sm transition-all active:scale-95"
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span>Preset Library</span>
@@ -156,7 +156,7 @@ export const StepsBuilderSection: React.FC = () => {
                 description: 'New blank step appended to the workflow',
               });
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-[#238636] hover:bg-[#2ea043] text-white shadow-sm transition-all"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-xl bg-[#238636] hover:bg-[#2ea043] text-white shadow-lg shadow-green-950/40 backdrop-blur-md transition-all active:scale-95 ring-1 ring-white/10"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add Step</span>
@@ -174,17 +174,17 @@ export const StepsBuilderSection: React.FC = () => {
             return (
               <motion.div
                 layout
-                initial={{ opacity: 0, y: 15, scale: 0.98 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.16 } }}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.96 }}
                 transition={{ duration: 0.2 }}
                 key={step.id}
                 onDragOver={handleDragOver}
                 onDrop={(e) => handleDrop(e, index)}
-                className={`rounded-xl border transition-all ${
+                className={`rounded-2xl border transition-all backdrop-blur-xl ${
                   isDragging
                     ? 'opacity-40 border-dashed border-[#58a6ff]'
-                    : 'bg-[#161b22] border-[#30363d] hover:border-[#484f58]'
+                    : 'bg-[#161b22]/60 border-white/[0.08] hover:border-[#58a6ff]/40 hover:bg-[#161b22]/80 shadow-sm hover:shadow-[0_8px_24px_rgba(0,0,0,0.35)]'
                 }`}
               >
                 {/* Step Card Header */}

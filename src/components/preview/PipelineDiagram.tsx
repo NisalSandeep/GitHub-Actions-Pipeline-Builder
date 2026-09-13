@@ -84,8 +84,8 @@ export const PipelineDiagram: React.FC = () => {
   };
 
   return (
-    <div className="rounded-2xl border border-[#30363d] bg-[#0d1117] p-5 space-y-6 shadow-2xl overflow-x-auto">
-      <div className="flex items-center justify-between border-b border-[#21262d] pb-3">
+    <div className="rounded-2xl border border-white/[0.09] bg-[#0d1117]/80 backdrop-blur-2xl p-5 space-y-6 shadow-[0_16px_40px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.08)] overflow-x-auto">
+      <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
         <div className="flex items-center gap-2">
           <Layers className="w-4 h-4 text-[#a371f7]" />
           <h3 className="text-xs font-bold text-[#f0f6fc]">Visual Pipeline Architecture (DAG)</h3>
@@ -97,21 +97,21 @@ export const PipelineDiagram: React.FC = () => {
 
       <div className="flex flex-col lg:flex-row items-stretch gap-4 min-w-[500px]">
         {/* Stage 1: Triggers */}
-        <div className="flex-1 rounded-xl bg-[#161b22] border border-[#30363d] p-4 flex flex-col justify-between">
+        <div className="flex-1 rounded-2xl bg-[#161b22]/70 border border-white/[0.08] backdrop-blur-xl p-4.5 flex flex-col justify-between shadow-lg">
           <div>
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-bold text-[#f0f6fc] flex items-center gap-1.5">
                 <GitCommit className="w-3.5 h-3.5 text-[#3fb950]" />
                 Trigger Events
               </span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#21262d] text-[#8b949e]">
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/[0.05] text-[#8b949e] border border-white/[0.08]">
                 on:
               </span>
             </div>
 
             <div className="space-y-2">
               {global.triggers.push.enabled && (
-                <div className="p-2 rounded-lg bg-[#0d1117] border border-[#30363d] text-xs space-y-1">
+                <div className="p-2.5 rounded-xl bg-[#0d1117]/70 border border-white/[0.07] backdrop-blur-md text-xs space-y-1">
                   <div className="text-[11px] font-semibold text-[#3fb950] flex items-center gap-1">
                     <GitCommit className="w-3 h-3" />
                     Push Event
@@ -123,7 +123,7 @@ export const PipelineDiagram: React.FC = () => {
               )}
 
               {global.triggers.pull_request.enabled && (
-                <div className="p-2 rounded-lg bg-[#0d1117] border border-[#30363d] text-xs space-y-1">
+                <div className="p-2.5 rounded-xl bg-[#0d1117]/70 border border-white/[0.07] backdrop-blur-md text-xs space-y-1">
                   <div className="text-[11px] font-semibold text-[#58a6ff] flex items-center gap-1">
                     <GitPullRequest className="w-3 h-3" />
                     Pull Request
@@ -135,7 +135,7 @@ export const PipelineDiagram: React.FC = () => {
               )}
 
               {global.triggers.schedule.enabled && (
-                <div className="p-2 rounded-lg bg-[#0d1117] border border-[#30363d] text-xs space-y-1">
+                <div className="p-2.5 rounded-xl bg-[#0d1117]/70 border border-white/[0.07] backdrop-blur-md text-xs space-y-1">
                   <div className="text-[11px] font-semibold text-[#d29922] flex items-center gap-1">
                     <Clock className="w-3 h-3" />
                     Cron Schedule
@@ -147,7 +147,7 @@ export const PipelineDiagram: React.FC = () => {
               )}
 
               {global.triggers.workflow_dispatch.enabled && (
-                <div className="p-2 rounded-lg bg-[#0d1117] border border-[#30363d] text-xs space-y-1">
+                <div className="p-2.5 rounded-xl bg-[#0d1117]/70 border border-white/[0.07] backdrop-blur-md text-xs space-y-1">
                   <div className="text-[11px] font-semibold text-[#a371f7] flex items-center gap-1">
                     <PlayCircle className="w-3 h-3" />
                     Manual Dispatch
@@ -158,7 +158,7 @@ export const PipelineDiagram: React.FC = () => {
             </div>
           </div>
 
-          <div className="mt-4 pt-3 border-t border-[#21262d] text-[10px] text-[#8b949e] flex items-center justify-between">
+          <div className="mt-4 pt-3 border-t border-white/[0.08] text-[10px] text-[#8b949e] flex items-center justify-between">
             <span className="flex items-center gap-1">Runner OS</span>
             <span className="font-mono text-[#c9d1d9] flex items-center gap-1">
               {getRunnerIcon()}
@@ -173,33 +173,33 @@ export const PipelineDiagram: React.FC = () => {
         </div>
 
         {/* Stage 2: Build & Test Job */}
-        <div className="flex-1 rounded-xl bg-[#161b22] border border-[#30363d] p-4 flex flex-col justify-between">
+        <div className="flex-1 rounded-2xl bg-[#161b22]/70 border border-white/[0.08] backdrop-blur-xl p-4.5 flex flex-col justify-between shadow-lg">
           <div>
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-bold text-[#f0f6fc] flex items-center gap-1.5">
                 {getLanguageIcon()}
                 Job: build
               </span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#388bfd1a] text-[#58a6ff] border border-[#388bfd33] flex items-center gap-1">
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#388bfd]/15 text-[#58a6ff] border border-[#388bfd]/30 flex items-center gap-1">
                 {language.type.toUpperCase()}
               </span>
             </div>
 
             <div className="space-y-1.5 text-xs">
-              <div className="flex items-center gap-2 p-1.5 rounded bg-[#0d1117] text-[11px] text-[#c9d1d9]">
+              <div className="flex items-center gap-2 p-2 rounded-xl bg-[#0d1117]/70 border border-white/[0.06] text-[11px] text-[#c9d1d9]">
                 <CheckCircle2 className="w-3 h-3 text-[#3fb950] shrink-0" />
                 <span>actions/checkout@v4</span>
               </div>
 
               {language.type !== 'none' && (
-                <div className="flex items-center gap-2 p-1.5 rounded bg-[#0d1117] text-[11px] text-[#c9d1d9]">
+                <div className="flex items-center gap-2 p-2 rounded-xl bg-[#0d1117]/70 border border-white/[0.06] text-[11px] text-[#c9d1d9]">
                   <CheckCircle2 className="w-3 h-3 text-[#3fb950] shrink-0" />
                   <span>Setup {language.type} runtime</span>
                 </div>
               )}
 
               {caching.enabled && (
-                <div className="flex items-center gap-2 p-1.5 rounded bg-[#0d1117] text-[11px] text-[#c9d1d9]">
+                <div className="flex items-center gap-2 p-2 rounded-xl bg-[#0d1117]/70 border border-white/[0.06] text-[11px] text-[#c9d1d9]">
                   <HardDrive className="w-3 h-3 text-[#d29922] shrink-0" />
                   <span>Dependency cache lookup</span>
                 </div>
@@ -208,10 +208,10 @@ export const PipelineDiagram: React.FC = () => {
               {steps.map((s, idx) => (
                 <div
                   key={s.id}
-                  className="flex items-center justify-between p-1.5 rounded bg-[#0d1117] text-[11px] text-[#c9d1d9]"
+                  className="flex items-center justify-between p-2 rounded-xl bg-[#0d1117]/70 border border-white/[0.06] text-[11px] text-[#c9d1d9]"
                 >
                   <div className="flex items-center gap-2 min-w-0">
-                    <span className="w-3.5 h-3.5 rounded-full bg-[#21262d] text-[9px] flex items-center justify-center font-mono">
+                    <span className="w-4 h-4 rounded-full bg-white/[0.06] text-[9px] flex items-center justify-center font-mono">
                       {idx + 1}
                     </span>
                     <span className="truncate">{s.name}</span>
@@ -222,7 +222,7 @@ export const PipelineDiagram: React.FC = () => {
           </div>
 
           {isMultiJob && (
-            <div className="mt-4 pt-3 border-t border-[#21262d] text-[10px] text-[#79c0ff] flex items-center justify-between">
+            <div className="mt-4 pt-3 border-t border-white/[0.08] text-[10px] text-[#79c0ff] flex items-center justify-between">
               <span>Artifact output:</span>
               <span className="font-mono">actions/upload-artifact</span>
             </div>
@@ -236,7 +236,7 @@ export const PipelineDiagram: React.FC = () => {
               <ArrowRight className="w-6 h-6 animate-pulse" />
             </div>
 
-            <div className="flex-1 rounded-xl bg-[#161b22] border border-[#f0883e]/40 p-4 flex flex-col justify-between">
+            <div className="flex-1 rounded-2xl bg-[#161b22]/70 border border-[#f0883e]/40 backdrop-blur-xl p-4.5 flex flex-col justify-between shadow-lg shadow-orange-950/20">
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-xs font-bold text-[#f0f6fc] flex items-center gap-1.5">

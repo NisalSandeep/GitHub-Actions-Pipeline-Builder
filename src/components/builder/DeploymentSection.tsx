@@ -122,17 +122,17 @@ export const DeploymentSection: React.FC = () => {
                 key={t.target}
                 type="button"
                 onClick={() => handleSelectTarget(t.target)}
-                className={`flex flex-col items-start p-3 rounded-xl border text-left transition-all ${
+                className={`flex flex-col items-start p-3.5 rounded-2xl border text-left transition-all ${
                   isSelected
-                    ? 'bg-[#1f6feb]/15 border-[#388bfd] shadow-lg shadow-blue-500/10 ring-1 ring-[#388bfd]'
-                    : 'bg-[#161b22] border-[#30363d] hover:border-[#8b949e]/50 hover:bg-[#21262d]'
+                    ? 'bg-[#1f6feb]/20 border-[#58a6ff] shadow-[0_0_24px_rgba(56,139,253,0.22),inset_0_1px_0_rgba(255,255,255,0.12)] ring-1 ring-[#58a6ff]/50 backdrop-blur-xl'
+                    : 'bg-[#161b22]/60 border-white/[0.08] hover:border-[#58a6ff]/40 hover:bg-[#21262d]/70 backdrop-blur-xl shadow-sm hover:shadow-[0_8px_20px_rgba(0,0,0,0.3)]'
                 }`}
               >
                 <div className="flex items-center justify-between w-full mb-2">
-                  <div className="p-1 rounded-lg bg-[#0d1117]/80 border border-[#30363d]/50">
+                  <div className="p-1.5 rounded-xl bg-[#0d1117]/80 border border-white/[0.08]">
                     {t.icon}
                   </div>
-                  {isSelected && <CheckCircle2 className="w-4 h-4 text-[#388bfd]" />}
+                  {isSelected && <CheckCircle2 className="w-4 h-4 text-[#58a6ff]" />}
                 </div>
                 <div className="text-xs font-bold text-[#f0f6fc]">{t.name}</div>
                 <div className="text-[11px] text-[#8b949e] line-clamp-2 mt-0.5">{t.desc}</div>

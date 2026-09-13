@@ -24,7 +24,7 @@ export const OutputPanel: React.FC = () => {
     <div className="sticky top-20 flex flex-col space-y-3">
       {/* Output Navigation Tabs & Validation Pill */}
       <div className="flex flex-wrap items-center justify-between gap-2 px-1">
-        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[#161b22]/95 border border-[#30363d] backdrop-blur-md shadow-sm">
+        <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-[#161b22]/70 border border-white/[0.08] backdrop-blur-xl shadow-lg">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
@@ -32,14 +32,14 @@ export const OutputPanel: React.FC = () => {
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`relative flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors duration-150 z-10 ${
-                  isActive ? 'text-[#f0f6fc]' : 'text-[#94a3b8] hover:text-[#f0f6fc]'
+                className={`relative flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors duration-150 z-10 ${
+                  isActive ? 'text-[#f0f6fc]' : 'text-[#94a3b8] hover:text-[#f0f6fc] hover:bg-white/[0.03]'
                 }`}
               >
                 {isActive && (
                   <motion.div
                     layoutId="activeOutputTabPill"
-                    className="absolute inset-0 rounded-lg bg-[#21262d] border border-[#30363d] shadow-sm -z-10"
+                    className="absolute inset-0 rounded-xl bg-[#21262d]/90 border border-[#388bfd]/50 shadow-md shadow-blue-500/10 -z-10 backdrop-blur-md"
                     transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                   />
                 )}
@@ -55,7 +55,7 @@ export const OutputPanel: React.FC = () => {
           })}
         </div>
 
-        <div className="flex items-center gap-1.5 text-xs text-[#3fb950] font-semibold bg-[#238636]/15 px-3 py-1.5 rounded-full border border-[#238636]/40 shadow-sm shadow-green-950/20">
+        <div className="flex items-center gap-1.5 text-xs text-[#3fb950] font-semibold bg-[#238636]/15 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-[#238636]/40 shadow-sm shadow-green-950/25">
           <CheckCircle2 className="w-3.5 h-3.5 text-[#3fb950]" />
           <span>Valid Workflow</span>
         </div>

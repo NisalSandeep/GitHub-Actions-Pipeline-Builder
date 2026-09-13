@@ -166,18 +166,18 @@ export const LanguageSection: React.FC = () => {
                 key={lang.type}
                 type="button"
                 onClick={() => updateLanguageType(lang.type)}
-                className={`relative flex flex-col items-start p-3 rounded-xl border text-left transition-all ${
+                className={`relative flex flex-col items-start p-3.5 rounded-2xl border text-left transition-all ${
                   isSelected
-                    ? 'bg-[#1f6feb]/15 border-[#388bfd] shadow-lg shadow-blue-500/10 ring-1 ring-[#388bfd]'
-                    : 'bg-[#161b22] border-[#30363d] hover:border-[#8b949e]/50 hover:bg-[#21262d]'
+                    ? 'bg-[#1f6feb]/20 border-[#58a6ff] shadow-[0_0_24px_rgba(56,139,253,0.22),inset_0_1px_0_rgba(255,255,255,0.12)] ring-1 ring-[#58a6ff]/50 backdrop-blur-xl'
+                    : 'bg-[#161b22]/60 border-white/[0.08] hover:border-[#58a6ff]/40 hover:bg-[#21262d]/70 backdrop-blur-xl shadow-sm hover:shadow-[0_8px_20px_rgba(0,0,0,0.3)]'
                 }`}
               >
                 <div className="flex items-center justify-between w-full mb-2">
-                  <div className="p-1 rounded-lg bg-[#0d1117]/80 border border-[#30363d]/50">
+                  <div className="p-1.5 rounded-xl bg-[#0d1117]/80 border border-white/[0.08]">
                     {lang.icon}
                   </div>
                   {isSelected && (
-                    <CheckCircle2 className="w-4 h-4 text-[#388bfd]" />
+                    <CheckCircle2 className="w-4 h-4 text-[#58a6ff]" />
                   )}
                 </div>
                 <div className="text-xs font-bold text-[#f0f6fc]">{lang.name}</div>
@@ -190,7 +190,7 @@ export const LanguageSection: React.FC = () => {
 
       {/* Dynamic Language Specific Configuration */}
       {state.language.type !== 'none' && (
-        <div className="p-4 rounded-xl bg-[#0d1117] border border-[#30363d] space-y-4 animate-fade-in">
+        <div className="p-4.5 rounded-2xl bg-[#0d1117]/65 border border-white/[0.08] backdrop-blur-xl shadow-inner space-y-4 animate-fade-in">
           {/* Node.js Configuration */}
           {state.language.type === 'node' && (
             <>
