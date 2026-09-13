@@ -14,6 +14,12 @@ import {
   Terminal,
   Rocket,
   ChevronDown,
+  ArrowRight,
+  ArrowLeft,
+  CheckCircle2,
+  Sliders,
+  Eye,
+  Layers,
 } from 'lucide-react';
 import {
   NodeIcon,
@@ -32,117 +38,47 @@ import {
   BeakerIcon,
 } from '../icons/BrandIcons';
 
-interface AccordionSectionProps {
-  id: string;
+type SectionKey = 'global' | 'language' | 'cache' | 'steps' | 'deployment';
+
+interface SectionMeta {
+  id: SectionKey;
+  stepNum: number;
+  shortTitle: string;
   title: string;
   subtitle: string;
   icon: React.ReactNode;
-  badge?: React.ReactNode;
-  isOpen: boolean;
-  onToggle: () => void;
-  children: React.ReactNode;
 }
 
-const AccordionSection: React.FC<AccordionSectionProps> = ({
-  id,
-  title,
-  subtitle,
-  icon,
-  badge,
-  isOpen,
-  onToggle,
-  children,
-}) => {
-  return (
-    <div
-      className={`rounded-xl border transition-all duration-200 shadow-sm ${
-        isOpen
-          ? 'border-[#388bfd]/40 bg-[#161b22] shadow-blue-950/20'
-          : 'border-[#30363d] bg-[#161b22]/90 hover:border-[#484f58]'
-      }`}
-    >
-      <button
-        type="button"
-        onClick={onToggle}
-        className="w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-[#21262d]/60 transition-colors group"
-      >
-        <div className="flex items-center gap-3.5 min-w-0">
-          <div className="p-2 rounded-lg bg-[#0d1117] border border-[#30363d] text-[#58a6ff] shrink-0 flex items-center justify-center shadow-inner group-hover:border-[#58a6ff]/40 transition-colors">
-            {icon}
-          </div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <h2 className="text-xs font-bold text-[#f0f6fc] tracking-tight group-hover:text-[#58a6ff] transition-colors">
-                {title}
-              </h2>
-              {badge}
-            </div>
-            <p className="text-[11px] text-[#94a3b8] truncate mt-0.5">{subtitle}</p>
-          </div>
-        </div>
-
-        <div
-          className={`p-1 rounded-md text-[#94a3b8] group-hover:text-[#f0f6fc] transition-transform duration-200 ${
-            isOpen ? 'rotate-180' : 'rotate-0'
-          }`}
-        >
-          <ChevronDown className="w-4 h-4" />
-        </div>
-      </button>
-
-      <AnimatePresence initial={false}>
-        {isOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-            className="overflow-hidden"
-          >
-            <div className="p-4 pt-3 border-t border-[#30363d]/60 bg-[#161b22]/40">
-              {children}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
+const slideVariants = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? 25 : -25,
+    opacity: 0,
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+    transition: {
+      duration: 0.2,
+      ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
+    },
+  },
+  exit: (direction: number) => ({
+    x: direction > 0 ? -25 : 25,
+    opacity: 0,
+    transition: {
+      duration: 0.16,
+      ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
+    },
+  }),
 };
 
 export const BuilderPanel: React.FC = () => {
   const { state } = useWorkflow();
 
-  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
-    global: true,
-    language: true,
-    cache: false,
-    steps: true,
-    deployment: true,
-  });
-
-  const toggleSection = (key: string) => {
-    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
-
-  const expandAll = () => {
-    setOpenSections({
-      global: true,
-      language: true,
-      cache: true,
-      steps: true,
-      deployment: true,
-    });
-  };
-
-  const collapseAll = () => {
-    setOpenSections({
-      global: false,
-      language: false,
-      cache: false,
-      steps: false,
-      deployment: false,
-    });
-  };
+  const [activeSection, setActiveSection] = useState<SectionKey>('global');
+  const [direction, setDirection] = useState<number>(0);
+  const [viewMode, setViewMode] = useState<'focused' | 'accordion'>('focused');
+  const [openAccordion, setOpenAccordion] = useState<SectionKey | null>('global');
 
   const getLanguageHeaderIcon = () => {
     switch (state.language.type) {
@@ -189,131 +125,352 @@ export const BuilderPanel: React.FC = () => {
     }
   };
 
+  const sections: SectionMeta[] = [
+    {
+      id: 'global',
+      stepNum: 1,
+      shortTitle: 'Global',
+      title: '1. Global Triggers & Runners',
+      subtitle: 'Workflow name, triggers (push, PR, cron), and runner VM',
+      icon: <Globe className="w-4 h-4 text-[#58a6ff]" />,
+    },
+    {
+      id: 'language',
+      stepNum: 2,
+      shortTitle: 'Language',
+      title: '2. Build Engine & Language',
+      subtitle: 'Runtime selection, version matrices, and package managers',
+      icon: getLanguageHeaderIcon(),
+    },
+    {
+      id: 'cache',
+      stepNum: 3,
+      shortTitle: 'Cache',
+      title: '3. Dependency & Cache Management',
+      subtitle: 'Accelerate CI builds with intelligent dependency caching',
+      icon: <HardDrive className="w-4 h-4 text-[#d29922]" />,
+    },
+    {
+      id: 'steps',
+      stepNum: 4,
+      shortTitle: 'Steps',
+      title: '4. Pipeline Steps Sequencer',
+      subtitle: 'Command sequence, unit tests, code analysis, and actions',
+      icon: <Terminal className="w-4 h-4 text-[#a371f7]" />,
+    },
+    {
+      id: 'deployment',
+      stepNum: 5,
+      shortTitle: 'Deploy',
+      title: '5. Deployment & Multi-Job Publishing',
+      subtitle: 'Docker Hub, AWS (ECS/S3/Lambda), Vercel, and GitHub Pages',
+      icon: getDeploymentHeaderIcon(),
+    },
+  ];
+
+  const getSectionBadge = (id: SectionKey) => {
+    switch (id) {
+      case 'global':
+        return (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#388bfd1a] text-[#58a6ff] text-[11px] font-mono border border-[#388bfd]/30">
+            {getRunnerIcon()}
+            <span>{state.global.runsOn.replace('-latest', '')}</span>
+          </span>
+        );
+      case 'language':
+        return (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#238636]/20 text-[#3fb950] text-[11px] font-semibold border border-[#238636]/40 uppercase">
+            {getLanguageHeaderIcon()}
+            <span>{state.language.type}</span>
+          </span>
+        );
+      case 'cache':
+        return (
+          <span
+            className={`px-2 py-0.5 rounded text-[11px] font-semibold border ${
+              state.caching.enabled
+                ? 'bg-[#238636]/20 text-[#3fb950] border-[#238636]/40'
+                : 'bg-[#21262d] text-[#8b949e] border-[#30363d]'
+            }`}
+          >
+            {state.caching.enabled ? 'Cached' : 'Off'}
+          </span>
+        );
+      case 'steps':
+        return (
+          <span className="px-2 py-0.5 rounded bg-[#a371f7]/20 text-[#d2a8ff] text-[11px] font-semibold border border-[#a371f7]/30">
+            {state.steps.length} {state.steps.length === 1 ? 'Step' : 'Steps'}
+          </span>
+        );
+      case 'deployment':
+        return (
+          <span
+            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold border ${
+              state.deployment.enabled
+                ? 'bg-[#f0883e]/20 text-[#ffa657] border-[#f0883e]/40'
+                : 'bg-[#21262d] text-[#8b949e] border-[#30363d]'
+            }`}
+          >
+            {getDeploymentHeaderIcon()}
+            <span>{state.deployment.enabled ? state.deployment.target.toUpperCase() : 'CI Only'}</span>
+          </span>
+        );
+    }
+  };
+
+  const renderSectionComponent = (id: SectionKey) => {
+    switch (id) {
+      case 'global':
+        return <GlobalSettingsSection />;
+      case 'language':
+        return <LanguageSection />;
+      case 'cache':
+        return <CacheSection />;
+      case 'steps':
+        return <StepsBuilderSection />;
+      case 'deployment':
+        return <DeploymentSection />;
+    }
+  };
+
+  const currentIndex = sections.findIndex((s) => s.id === activeSection);
+  const currentSection = sections[currentIndex] || sections[0];
+  const prevSection = currentIndex > 0 ? sections[currentIndex - 1] : null;
+  const nextSection = currentIndex < sections.length - 1 ? sections[currentIndex + 1] : null;
+
+  const navigateToSection = (targetId: SectionKey) => {
+    const targetIdx = sections.findIndex((s) => s.id === targetId);
+    setDirection(targetIdx > currentIndex ? 1 : -1);
+    setActiveSection(targetId);
+    setOpenAccordion(targetId);
+  };
+
   return (
     <div className="space-y-4 pb-12">
-      {/* Panel Top Controller */}
+      {/* Top Header Controls: Title & View Mode Switcher */}
       <div className="flex items-center justify-between px-1">
-        <span className="text-xs font-bold uppercase tracking-wider text-[#8b949e]">
-          Configuration Pipeline
-        </span>
-        <div className="flex items-center gap-2 text-[11px]">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#8b949e]">
+            Visual Architect
+          </span>
+          <span className="text-[11px] text-[#58a6ff] font-medium bg-[#388bfd]/10 px-2 py-0.5 rounded-full border border-[#388bfd]/25">
+            Step {currentIndex + 1} of 5
+          </span>
+        </div>
+
+        {/* View Mode Toggle: Focus Mode (Single Pane) vs Accordion Mode */}
+        <div className="flex items-center gap-1 p-0.5 rounded-lg bg-[#161b22] border border-[#30363d] text-xs">
           <button
             type="button"
-            onClick={expandAll}
-            className="text-[#8b949e] hover:text-[#58a6ff] transition-colors"
+            onClick={() => setViewMode('focused')}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all ${
+              viewMode === 'focused'
+                ? 'bg-[#21262d] text-[#58a6ff] shadow-sm'
+                : 'text-[#8b949e] hover:text-[#f0f6fc]'
+            }`}
+            title="Focus on one pane side-by-side with YAML preview"
           >
-            Expand All
+            <Eye className="w-3 h-3" />
+            <span>Focus Mode</span>
           </button>
-          <span className="text-[#30363d]">•</span>
           <button
             type="button"
-            onClick={collapseAll}
-            className="text-[#8b949e] hover:text-[#58a6ff] transition-colors"
+            onClick={() => setViewMode('accordion')}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all ${
+              viewMode === 'accordion'
+                ? 'bg-[#21262d] text-[#58a6ff] shadow-sm'
+                : 'text-[#8b949e] hover:text-[#f0f6fc]'
+            }`}
+            title="Accordion list mode"
           >
-            Collapse All
+            <Layers className="w-3 h-3" />
+            <span>Accordion</span>
           </button>
         </div>
       </div>
 
-      {/* 1. Global Settings */}
-      <AccordionSection
-        id="global"
-        title="1. Global Settings & Triggers"
-        subtitle="Name, triggers (push, PR, cron), and runner VM environment"
-        icon={<Globe className="w-4 h-4 text-[#58a6ff]" />}
-        badge={
-          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#388bfd1a] text-[#58a6ff] text-[10px] font-mono">
-            {getRunnerIcon()}
-            <span>{state.global.runsOn}</span>
-          </span>
-        }
-        isOpen={!!openSections.global}
-        onToggle={() => toggleSection('global')}
-      >
-        <GlobalSettingsSection />
-      </AccordionSection>
+      {/* Stepper Navigation Bar (5 Sections) */}
+      <div className="p-1 rounded-xl bg-[#161b22] border border-[#30363d] shadow-sm grid grid-cols-5 gap-1 select-none">
+        {sections.map((sec) => {
+          const isActive = activeSection === sec.id;
+          return (
+            <button
+              key={sec.id}
+              type="button"
+              onClick={() => navigateToSection(sec.id)}
+              className={`relative flex flex-col sm:flex-row items-center justify-center gap-1.5 py-2 px-1.5 rounded-lg text-xs font-semibold transition-colors duration-150 z-10 ${
+                isActive
+                  ? 'text-[#f0f6fc]'
+                  : 'text-[#8b949e] hover:text-[#f0f6fc] hover:bg-[#21262d]/40'
+              }`}
+            >
+              {isActive && (
+                <motion.div
+                  layoutId="activeSectionPill"
+                  className="absolute inset-0 rounded-lg bg-[#21262d] border border-[#388bfd]/50 shadow-md shadow-blue-950/20 -z-10"
+                  transition={{ type: 'spring', stiffness: 480, damping: 34 }}
+                />
+              )}
+              <span
+                className={`w-4 h-4 rounded-full text-[10px] flex items-center justify-center font-mono font-bold shrink-0 ${
+                  isActive
+                    ? 'bg-[#58a6ff] text-[#0d1117]'
+                    : 'bg-[#30363d] text-[#8b949e]'
+                }`}
+              >
+                {sec.stepNum}
+              </span>
+              <span className="truncate text-[11px]">{sec.shortTitle}</span>
+            </button>
+          );
+        })}
+      </div>
 
-      {/* 2. Language Selection */}
-      <AccordionSection
-        id="language"
-        title="2. Build Engine & Language"
-        subtitle="Runtime selection, version matrices, and package managers"
-        icon={getLanguageHeaderIcon()}
-        badge={
-          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#238636]/20 text-[#3fb950] text-[10px] uppercase font-semibold">
-            {getLanguageHeaderIcon()}
-            <span>{state.language.type}</span>
-          </span>
-        }
-        isOpen={!!openSections.language}
-        onToggle={() => toggleSection('language')}
-      >
-        <LanguageSection />
-      </AccordionSection>
+      {/* VIEW MODE 1: FOCUS MODE (Shows ONLY the selected pane side-by-side with YAML) */}
+      {viewMode === 'focused' && (
+        <div className="rounded-2xl border border-[#388bfd]/30 bg-[#161b22] shadow-xl overflow-hidden transition-all">
+          {/* Active Pane Header */}
+          <div className="p-4 bg-[#1c2128]/80 border-b border-[#30363d] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3.5 min-w-0">
+              <div className="p-2.5 rounded-xl bg-[#0d1117] border border-[#30363d] text-[#58a6ff] shrink-0 shadow-inner">
+                {currentSection.icon}
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h2 className="text-sm font-bold text-[#f0f6fc] tracking-tight">
+                    {currentSection.title}
+                  </h2>
+                  {getSectionBadge(currentSection.id)}
+                </div>
+                <p className="text-xs text-[#94a3b8] truncate mt-0.5">
+                  {currentSection.subtitle}
+                </p>
+              </div>
+            </div>
 
-      {/* 3. Cache & Dependencies */}
-      <AccordionSection
-        id="cache"
-        title="3. Dependency & Cache Management"
-        subtitle="Accelerate builds by caching npm, pip, go, or cargo artifacts"
-        icon={<HardDrive className="w-4 h-4 text-[#d29922]" />}
-        badge={
-          <span
-            className={`px-1.5 py-0.2 rounded text-[10px] font-semibold ${
-              state.caching.enabled
-                ? 'bg-[#238636]/20 text-[#3fb950]'
-                : 'bg-[#21262d] text-[#8b949e]'
-            }`}
-          >
-            {state.caching.enabled ? 'Enabled' : 'Disabled'}
-          </span>
-        }
-        isOpen={!!openSections.cache}
-        onToggle={() => toggleSection('cache')}
-      >
-        <CacheSection />
-      </AccordionSection>
+            <div className="text-[11px] text-[#8b949e] font-mono hidden md:block">
+              YAML Preview aligned side-by-side →
+            </div>
+          </div>
 
-      {/* 4. Custom Steps Builder */}
-      <AccordionSection
-        id="steps"
-        title="4. Custom Steps Builder"
-        subtitle="Order of commands, tests, linters, and environment variables"
-        icon={<Terminal className="w-4 h-4 text-[#a371f7]" />}
-        badge={
-          <span className="px-1.5 py-0.2 rounded bg-[#a371f7]/20 text-[#d2a8ff] text-[10px] font-semibold">
-            {state.steps.length} {state.steps.length === 1 ? 'Step' : 'Steps'}
-          </span>
-        }
-        isOpen={!!openSections.steps}
-        onToggle={() => toggleSection('steps')}
-      >
-        <StepsBuilderSection />
-      </AccordionSection>
+          {/* Active Pane Body with Directional Slide Transition */}
+          <div className="p-5 relative min-h-[380px]">
+            <AnimatePresence mode="wait" custom={direction}>
+              <motion.div
+                key={activeSection}
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+              >
+                {renderSectionComponent(activeSection)}
+              </motion.div>
+            </AnimatePresence>
+          </div>
 
-      {/* 5. Deployment & Publishing */}
-      <AccordionSection
-        id="deployment"
-        title="5. Deployment & Multi-Job Publishing"
-        subtitle="Docker Hub, AWS (ECS/S3/Lambda), Vercel, and GitHub Pages"
-        icon={getDeploymentHeaderIcon()}
-        badge={
-          <span
-            className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold ${
-              state.deployment.enabled
-                ? 'bg-[#f0883e]/20 text-[#ffa657]'
-                : 'bg-[#21262d] text-[#8b949e]'
-            }`}
-          >
-            {getDeploymentHeaderIcon()}
-            <span>{state.deployment.enabled ? state.deployment.target.toUpperCase() : 'None'}</span>
-          </span>
-        }
-        isOpen={!!openSections.deployment}
-        onToggle={() => toggleSection('deployment')}
-      >
-        <DeploymentSection />
-      </AccordionSection>
+          {/* Bottom Stepper Navigation: Previous & Next Section Buttons */}
+          <div className="p-3.5 bg-[#12161c] border-t border-[#30363d] flex items-center justify-between gap-3">
+            {prevSection ? (
+              <button
+                type="button"
+                onClick={() => navigateToSection(prevSection.id)}
+                className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#21262d] hover:bg-[#30363d] text-xs font-semibold text-[#f0f6fc] border border-[#30363d] transition-all hover:border-[#8b949e] active:scale-95"
+              >
+                <ArrowLeft className="w-3.5 h-3.5 text-[#8b949e]" />
+                <span>Previous: {prevSection.shortTitle}</span>
+              </button>
+            ) : (
+              <div />
+            )}
+
+            {nextSection ? (
+              <button
+                type="button"
+                onClick={() => navigateToSection(nextSection.id)}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#238636] hover:bg-[#2ea043] text-xs font-semibold text-white shadow-lg shadow-green-950/40 transition-all active:scale-95 ml-auto"
+              >
+                <span>Next: {nextSection.shortTitle}</span>
+                <ArrowRight className="w-3.5 h-3.5 text-white" />
+              </button>
+            ) : (
+              <div className="flex items-center gap-1.5 text-xs text-[#3fb950] font-semibold ml-auto px-3 py-1.5 rounded-lg bg-[#238636]/15 border border-[#238636]/30">
+                <CheckCircle2 className="w-4 h-4" />
+                <span>All 5 Sections Configured</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* VIEW MODE 2: EXCLUSIVE ACCORDION MODE (Clicking a section opens it & collapses others) */}
+      {viewMode === 'accordion' && (
+        <div className="space-y-3">
+          {sections.map((sec) => {
+            const isOpen = openAccordion === sec.id;
+            return (
+              <div
+                key={sec.id}
+                className={`rounded-xl border transition-all duration-200 shadow-sm ${
+                  isOpen
+                    ? 'border-[#388bfd]/50 bg-[#161b22] shadow-blue-950/20'
+                    : 'border-[#30363d] bg-[#161b22]/90 hover:border-[#484f58]'
+                }`}
+              >
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpenAccordion(isOpen ? null : sec.id);
+                    setActiveSection(sec.id);
+                  }}
+                  className="w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-[#21262d]/60 transition-colors group"
+                >
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    <div className="p-2 rounded-lg bg-[#0d1117] border border-[#30363d] text-[#58a6ff] shrink-0 flex items-center justify-center shadow-inner group-hover:border-[#58a6ff]/40 transition-colors">
+                      {sec.icon}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h2 className="text-xs font-bold text-[#f0f6fc] tracking-tight group-hover:text-[#58a6ff] transition-colors">
+                          {sec.title}
+                        </h2>
+                        {getSectionBadge(sec.id)}
+                      </div>
+                      <p className="text-[11px] text-[#94a3b8] truncate mt-0.5">
+                        {sec.subtitle}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div
+                    className={`p-1 rounded-md text-[#94a3b8] group-hover:text-[#f0f6fc] transition-transform duration-200 ${
+                      isOpen ? 'rotate-180' : 'rotate-0'
+                    }`}
+                  >
+                    <ChevronDown className="w-4 h-4" />
+                  </div>
+                </button>
+
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                      className="overflow-hidden"
+                    >
+                      <div className="p-4 pt-3 border-t border-[#30363d]/60 bg-[#161b22]/40">
+                        {renderSectionComponent(sec.id)}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
