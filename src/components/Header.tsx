@@ -15,7 +15,9 @@ import {
   ChevronDown,
   ExternalLink,
   Check,
+  Upload,
 } from 'lucide-react';
+import { ImportYamlModal } from './builder/ImportYamlModal';
 import {
   NodeIcon,
   PythonIcon,
@@ -34,6 +36,7 @@ import {
 export const Header: React.FC = () => {
   const { state, requiredSecrets, loadPreset, resetWorkflow } = useWorkflow();
   const [presetDropdownOpen, setPresetDropdownOpen] = useState(false);
+  const [importModalOpen, setImportModalOpen] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false);
 
   // Close preset dropdown on Escape key
@@ -148,6 +151,19 @@ export const Header: React.FC = () => {
 
         {/* Action Controls */}
         <div className="flex items-center gap-2 w-full md:w-auto justify-end">
+          {/* Import YAML Button */}
+          <motion.button
+            whileHover={{ scale: 1.025, y: -1 }}
+            whileTap={{ scale: 0.975 }}
+            onClick={() => setImportModalOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#58a6ff]/10 hover:bg-[#58a6ff]/20 text-[#58a6ff] text-xs font-semibold border border-[#58a6ff]/30 hover:border-[#58a6ff]/60 backdrop-blur-md shadow-sm transition-all"
+            title="Import an existing GitHub Actions YAML workflow into the visual builder"
+          >
+            <Upload className="w-3.5 h-3.5 text-[#58a6ff]" />
+            <span className="hidden sm:inline">Import YAML</span>
+            <span className="sm:hidden">Import</span>
+          </motion.button>
+
           {/* Preset Selector Dropdown */}
           <div className="relative">
             <motion.button
@@ -260,6 +276,12 @@ export const Header: React.FC = () => {
           </motion.a>
         </div>
       </div>
+
+      {/* Import YAML Modal */}
+      <ImportYamlModal
+        isOpen={importModalOpen}
+        onClose={() => setImportModalOpen(false)}
+      />
     </header>
   );
 };

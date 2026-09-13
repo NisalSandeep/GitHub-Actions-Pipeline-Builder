@@ -22,7 +22,9 @@ import {
   Sliders,
   Check,
   X,
+  Store,
 } from 'lucide-react';
+import { MarketplaceModal } from './MarketplaceModal';
 import {
   SlackIcon,
   DockerIcon,
@@ -47,6 +49,7 @@ export const StepsBuilderSection: React.FC = () => {
   const { showToast } = useToast();
   const [expandedSteps, setExpandedSteps] = useState<Record<string, boolean>>({});
   const [templateModalOpen, setTemplateModalOpen] = useState(false);
+  const [marketplaceModalOpen, setMarketplaceModalOpen] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [mounted, setMounted] = useState(false);
 
@@ -141,6 +144,18 @@ export const StepsBuilderSection: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Marketplace & Notifications Button */}
+          <motion.button
+            type="button"
+            whileHover={{ scale: 1.025, y: -1 }}
+            whileTap={{ scale: 0.975 }}
+            onClick={() => setMarketplaceModalOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl bg-[#58a6ff]/10 hover:bg-[#58a6ff]/20 text-[#58a6ff] border border-[#58a6ff]/30 hover:border-[#58a6ff]/60 backdrop-blur-md shadow-sm transition-all"
+          >
+            <Store className="w-3.5 h-3.5 text-[#58a6ff]" />
+            <span>Marketplace</span>
+          </motion.button>
+
           {/* Templates Library Button */}
           <motion.button
             type="button"
@@ -547,6 +562,12 @@ export const StepsBuilderSection: React.FC = () => {
           </AnimatePresence>,
           document.body
         )}
+
+      {/* Marketplace Modal */}
+      <MarketplaceModal
+        isOpen={marketplaceModalOpen}
+        onClose={() => setMarketplaceModalOpen(false)}
+      />
     </div>
   );
 };

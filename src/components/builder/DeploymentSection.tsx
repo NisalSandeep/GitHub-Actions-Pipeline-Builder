@@ -10,6 +10,8 @@ import {
   Layers,
   KeyRound,
   CheckCircle2,
+  ShieldCheck,
+  Globe,
 } from 'lucide-react';
 import {
   DockerIcon,
@@ -79,6 +81,7 @@ export const DeploymentSection: React.FC = () => {
     updateAwsDeployment,
     updateVercelDeployment,
     updateGitHubPagesDeployment,
+    updateGitHubEnvironment,
   } = useWorkflow();
 
   const { showToast } = useToast();
@@ -476,6 +479,99 @@ export const DeploymentSection: React.FC = () => {
               </div>
             </div>
           )}
+
+          {/* GitHub Deployment Environment Gate (environment:) */}
+          <div className="p-5 rounded-2xl bg-[#161b22]/70 border border-white/[0.08] backdrop-blur-xl shadow-lg space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#238636]/20 to-[#2ea043]/10 border border-[#3fb950]/30 text-[#3fb950] shadow-inner">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h4 className="text-xs font-bold text-[#f0f6fc]">GitHub Deployment Environment Gate</h4>
+                    <span className="px-2 py-0.5 text-[10px] font-mono font-semibold rounded-full bg-[#238636]/20 text-[#3fb950] border border-[#3fb950]/30">
+                      environment:
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-[#8b949e]">
+                    Bind this job to a GitHub Environment to enforce required reviewers, protection rules, and environment secrets.
+                  </p>
+                </div>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={state.deployment.environment?.enabled ?? false}
+                  onChange={(e) => updateGitHubEnvironment({ enabled: e.target.checked })}
+                  className="sr-only peer"
+                />
+                <div className="w-9 h-5 bg-[#21262d] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#238636]"></div>
+              </label>
+            </div>
+
+            {state.deployment.environment?.enabled && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="space-y-4 pt-1"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-xs font-medium text-[#c9d1d9]">
+                      Environment Name
+                    </label>
+                    <div className="flex items-center gap-1.5">
+                      {['production', 'staging', 'preview', 'development'].map((envName) => (
+                        <button
+                          key={envName}
+                          type="button"
+                          onClick={() => updateGitHubEnvironment({ name: envName })}
+                          className={`px-2 py-0.5 text-[10px] font-mono rounded-lg transition-colors border ${
+                            state.deployment.environment?.name === envName
+                              ? 'bg-[#388bfd]/20 text-[#79c0ff] border-[#388bfd]/40 font-semibold'
+                              : 'bg-[#0d1117]/80 text-[#8b949e] border-white/[0.08] hover:text-[#f0f6fc] hover:border-white/[0.2]'
+                          }`}
+                        >
+                          {envName}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <input
+                    type="text"
+                    value={state.deployment.environment?.name || ''}
+                    onChange={(e) => updateGitHubEnvironment({ name: e.target.value })}
+                    placeholder="production"
+                    className="w-full px-3 py-2 text-xs bg-[#0d1117]/60 border border-white/[0.09] rounded-xl text-[#f0f6fc] font-mono focus:outline-none focus:border-[#58a6ff] focus:ring-1 focus:ring-[#58a6ff]/30 transition-all backdrop-blur-md"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-[#c9d1d9] mb-1.5 flex items-center justify-between">
+                    <span className="flex items-center gap-1.5">
+                      <Globe className="w-3.5 h-3.5 text-[#58a6ff]" />
+                      Deployment URL Output (Optional)
+                    </span>
+                    <span className="text-[10px] text-[#8b949e] font-mono">
+                      url:
+                    </span>
+                  </label>
+                  <input
+                    type="text"
+                    value={state.deployment.environment?.url || ''}
+                    onChange={(e) => updateGitHubEnvironment({ url: e.target.value })}
+                    placeholder="e.g. https://my-app.example.com or ${{ steps.deploy.outputs.url }}"
+                    className="w-full px-3 py-2 text-xs bg-[#0d1117]/60 border border-white/[0.09] rounded-xl text-[#f0f6fc] font-mono focus:outline-none focus:border-[#58a6ff] focus:ring-1 focus:ring-[#58a6ff]/30 transition-all backdrop-blur-md"
+                  />
+                  <p className="text-[10px] text-[#8b949e] mt-1">
+                    GitHub will link this URL directly in the commit / PR deployment status badge.
+                  </p>
+                </div>
+              </motion.div>
+            )}
+          </div>
           </motion.div>
         )}
       </AnimatePresence>

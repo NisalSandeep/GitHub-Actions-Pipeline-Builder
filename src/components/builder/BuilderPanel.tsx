@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useWorkflow } from '../../context/WorkflowContext';
 import { GlobalSettingsSection } from './GlobalSettingsSection';
 import { LanguageSection } from './LanguageSection';
+import { MatrixBuilderSection } from './MatrixBuilderSection';
 import { CacheSection } from './CacheSection';
 import { StepsBuilderSection } from './StepsBuilderSection';
 import { DeploymentSection } from './DeploymentSection';
@@ -44,7 +45,7 @@ import {
   BeakerIcon,
 } from '../icons/BrandIcons';
 
-type SectionKey = 'global' | 'language' | 'cache' | 'steps' | 'deployment' | 'manual';
+type SectionKey = 'global' | 'language' | 'matrix' | 'cache' | 'steps' | 'deployment' | 'manual';
 
 interface SectionMeta {
   id: SectionKey;
@@ -160,34 +161,42 @@ export const BuilderPanel: React.FC = () => {
       icon: getLanguageHeaderIcon(),
     },
     {
-      id: 'cache',
+      id: 'matrix',
       stepNum: 3,
+      shortTitle: 'Matrix',
+      title: '3. Matrix Strategy Builder',
+      subtitle: 'Multi-OS & multi-version parallel testing grid with fail-fast controls',
+      icon: <Layers className="w-4 h-4 text-[#a371f7]" />,
+    },
+    {
+      id: 'cache',
+      stepNum: 4,
       shortTitle: 'Cache',
-      title: '3. Dependency & Cache Management',
+      title: '4. Dependency & Cache Management',
       subtitle: 'Accelerate CI builds with intelligent dependency caching',
       icon: <HardDrive className="w-4 h-4 text-[#d29922]" />,
     },
     {
       id: 'steps',
-      stepNum: 4,
+      stepNum: 5,
       shortTitle: 'Steps',
-      title: '4. Pipeline Steps Sequencer',
+      title: '5. Pipeline Steps Sequencer',
       subtitle: 'Command sequence, unit tests, code analysis, and actions',
       icon: <Terminal className="w-4 h-4 text-[#a371f7]" />,
     },
     {
       id: 'deployment',
-      stepNum: 5,
+      stepNum: 6,
       shortTitle: 'Deploy',
-      title: '5. Deployment & Multi-Job Publishing',
+      title: '6. Deployment & Multi-Job Publishing',
       subtitle: 'Docker Hub, AWS (ECS/S3/Lambda), Vercel, and GitHub Pages',
       icon: getDeploymentHeaderIcon(),
     },
     {
       id: 'manual',
-      stepNum: 6,
+      stepNum: 7,
       shortTitle: 'Manual YAML',
-      title: '6. Manual YAML Code & Validator',
+      title: '7. Manual YAML Code & Validator',
       subtitle: 'Directly edit workflow code with inline suggestions and real-time schema validation',
       icon: <Code2 className="w-4 h-4 text-[#58a6ff]" />,
     },
@@ -207,6 +216,19 @@ export const BuilderPanel: React.FC = () => {
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#238636]/20 text-[#3fb950] text-[11px] font-semibold border border-[#238636]/40 uppercase">
             {getLanguageHeaderIcon()}
             <span>{state.language.type}</span>
+          </span>
+        );
+      case 'matrix':
+        return (
+          <span
+            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold border ${
+              state.matrix.enabled
+                ? 'bg-[#a371f7]/20 text-[#d2a8ff] border-[#a371f7]/40'
+                : 'bg-[#21262d] text-[#8b949e] border-[#30363d]'
+            }`}
+          >
+            <Layers className="w-3 h-3 text-[#a371f7]" />
+            <span>{state.matrix.enabled ? `${(state.matrix.os?.length || 1) * Math.max(1, state.matrix.versions?.length || 1)} Jobs` : 'Off'}</span>
           </span>
         );
       case 'cache':
@@ -256,6 +278,8 @@ export const BuilderPanel: React.FC = () => {
         return <GlobalSettingsSection />;
       case 'language':
         return <LanguageSection />;
+      case 'matrix':
+        return <MatrixBuilderSection />;
       case 'cache':
         return <CacheSection />;
       case 'steps':
@@ -288,7 +312,7 @@ export const BuilderPanel: React.FC = () => {
             Visual Architect
           </span>
           <span className="text-[11px] text-[#58a6ff] font-medium bg-[#388bfd]/10 px-2 py-0.5 rounded-full border border-[#388bfd]/25">
-            Step {currentIndex + 1} of 6
+            Step {currentIndex + 1} of {sections.length}
           </span>
         </div>
 
@@ -323,8 +347,8 @@ export const BuilderPanel: React.FC = () => {
         </div>
       </div>
 
-      {/* Stepper Navigation Bar (6 Sections) */}
-      <div className="p-1.5 rounded-2xl bg-[#161b22]/70 border border-white/[0.08] backdrop-blur-xl shadow-lg grid grid-cols-3 sm:grid-cols-6 gap-1.5 select-none">
+      {/* Stepper Navigation Bar (7 Sections) */}
+      <div className="p-1.5 rounded-2xl bg-[#161b22]/70 border border-white/[0.08] backdrop-blur-xl shadow-lg grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-1.5 select-none">
         {sections.map((sec) => {
           const isActive = activeSection === sec.id;
           return (

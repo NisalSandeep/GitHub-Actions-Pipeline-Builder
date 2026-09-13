@@ -34,6 +34,14 @@ export const DEFAULT_WORKFLOW_STATE: WorkflowState = {
       pullRequests: 'none',
       idToken: 'none',
     },
+    env: [],
+  },
+  matrix: {
+    enabled: false,
+    os: ['ubuntu-latest'],
+    versions: [],
+    failFast: true,
+    maxParallel: 4,
   },
   language: {
     type: 'node',
@@ -120,6 +128,11 @@ export const DEFAULT_WORKFLOW_STATE: WorkflowState = {
   deployment: {
     enabled: false,
     target: 'none',
+    environment: {
+      enabled: false,
+      name: 'production',
+      url: '',
+    },
     docker: {
       registry: 'dockerhub',
       imageName: 'myusername/app',

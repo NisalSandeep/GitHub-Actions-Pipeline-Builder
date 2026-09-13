@@ -55,6 +55,18 @@ export function generateYaml(state: WorkflowState): string {
 
   lines.push('');
 
+  // Top-Level Environment Variables (env:)
+  if (global.env && global.env.length > 0) {
+    const validEnvs = global.env.filter((e) => e.key.trim());
+    if (validEnvs.length > 0) {
+      lines.push('env:');
+      validEnvs.forEach((e) => {
+        lines.push(`  ${e.key.trim()}: '${e.value}'`);
+      });
+      lines.push('');
+    }
+  }
+
   // Permissions
   if (global.permissions.enabled) {
     lines.push('permissions:');
@@ -98,16 +110,43 @@ export function generateYaml(state: WorkflowState): string {
   // Job 1: Build / Test
   lines.push('  build:');
   lines.push(`    name: ${isMultiJob ? 'Build & Test' : 'Build, Test & Package'}`);
-  lines.push(`    runs-on: ${global.runsOn}`);
 
-  // Build Matrix Strategy if applicable
-  const matrix = getMatrixStrategy(language);
-  if (matrix) {
+  // Runs-on: if multi-OS matrix is active, use ${{ matrix.os }}
+  const isMultiOs = Boolean(state.matrix?.enabled && state.matrix.os && state.matrix.os.length > 1);
+  if (isMultiOs) {
+    lines.push('    runs-on: ${{ matrix.os }}');
+  } else {
+    lines.push(`    runs-on: ${global.runsOn}`);
+  }
+
+  // Build Matrix Strategy
+  if (state.matrix?.enabled) {
     lines.push('    strategy:');
+    if (!state.matrix.failFast) {
+      lines.push('      fail-fast: false');
+    }
+    if (state.matrix.maxParallel && state.matrix.maxParallel > 0) {
+      lines.push(`      max-parallel: ${state.matrix.maxParallel}`);
+    }
     lines.push('      matrix:');
-    for (const [key, values] of Object.entries(matrix)) {
-      lines.push(`        ${key}:`);
-      values.forEach((v) => lines.push(`          - '${v}'`));
+    if (state.matrix.os && state.matrix.os.length > 0) {
+      lines.push('        os:');
+      state.matrix.os.forEach((o) => lines.push(`          - ${o}`));
+    }
+    const versionKey = getVersionMatrixKey(language);
+    if (state.matrix.versions && state.matrix.versions.length > 0) {
+      lines.push(`        ${versionKey}:`);
+      state.matrix.versions.forEach((v) => lines.push(`          - '${v}'`));
+    }
+  } else {
+    const matrix = getMatrixStrategy(language);
+    if (matrix) {
+      lines.push('    strategy:');
+      lines.push('      matrix:');
+      for (const [key, values] of Object.entries(matrix)) {
+        lines.push(`        ${key}:`);
+        values.forEach((v) => lines.push(`          - '${v}'`));
+      }
     }
   }
 
@@ -159,7 +198,13 @@ export function generateYaml(state: WorkflowState): string {
       lines.push("    if: github.ref == 'refs/heads/main'");
     }
 
-    if (deployment.target === 'github_pages') {
+    if (deployment.environment?.enabled && deployment.environment.name.trim()) {
+      lines.push('    environment:');
+      lines.push(`      name: ${deployment.environment.name.trim()}`);
+      if (deployment.environment.url && deployment.environment.url.trim()) {
+        lines.push(`      url: ${deployment.environment.url.trim()}`);
+      }
+    } else if (deployment.target === 'github_pages') {
       lines.push('    environment:');
       lines.push('      name: github-pages');
       lines.push('      url: ${{ steps.deployment.outputs.page_url }}');
@@ -185,6 +230,32 @@ export function generateYaml(state: WorkflowState): string {
   }
 
   return lines.join('\n');
+}
+
+/**
+ * Get matrix key name for language versions
+ */
+function getVersionMatrixKey(language: WorkflowState['language']): string {
+  switch (language.type) {
+    case 'node':
+      return 'node-version';
+    case 'python':
+      return 'python-version';
+    case 'go':
+      return 'go-version';
+    case 'java':
+      return 'java-version';
+    case 'rust':
+      return 'rust-toolchain';
+    case 'php':
+      return 'php-version';
+    case 'dotnet':
+      return 'dotnet-version';
+    case 'ruby':
+      return 'ruby-version';
+    default:
+      return 'version';
+  }
 }
 
 /**
@@ -706,6 +777,23 @@ export function getRequiredSecrets(state: WorkflowState): RequiredSecret[] {
       }
     }
   });
+
+  // Scan global environment variables for secrets
+  if (state.global.env && state.global.env.length > 0) {
+    const globalContent = state.global.env.map((e) => e.value).join(' ');
+    let match;
+    while ((match = secretRegex.exec(globalContent)) !== null) {
+      const secretName = match[1];
+      if (!secrets.some((s) => s.name === secretName)) {
+        secrets.push({
+          name: secretName,
+          description: `Referenced in workflow global env`,
+          recommendedValue: 'Secret value',
+          target: 'General',
+        });
+      }
+    }
+  }
 
   return secrets;
 }

@@ -16,8 +16,12 @@ import {
   Plus,
   X,
   HelpCircle,
+  FileUp,
+  KeyRound,
+  Braces,
 } from 'lucide-react';
 import { UbuntuIcon, WindowsIcon, AppleIcon } from '../icons/BrandIcons';
+import { ImportYamlModal } from './ImportYamlModal';
 
 interface RunnerOption {
   id: RunnerOS;
@@ -48,10 +52,28 @@ export const GlobalSettingsSection: React.FC = () => {
     updateTriggerPR,
     updateTriggerSchedule,
     updateTriggerDispatch,
+    updateGlobalEnv,
   } = useWorkflow();
 
+  const [importModalOpen, setImportModalOpen] = useState(false);
   const [newPushBranch, setNewPushBranch] = useState('');
   const [newPrBranch, setNewPrBranch] = useState('');
+
+  const envVars = state.global.env || [];
+
+  const addEnvVar = (key = '', value = '') => {
+    updateGlobalEnv([...envVars, { key, value }]);
+  };
+
+  const updateEnvVar = (index: number, key: string, value: string) => {
+    const updated = [...envVars];
+    updated[index] = { key, value };
+    updateGlobalEnv(updated);
+  };
+
+  const removeEnvVar = (index: number) => {
+    updateGlobalEnv(envVars.filter((_, i) => i !== index));
+  };
 
   const addPushBranch = () => {
     if (newPushBranch.trim() && !state.global.triggers.push.branches.includes(newPushBranch.trim())) {
@@ -85,6 +107,31 @@ export const GlobalSettingsSection: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Quick Import Workflow Banner */}
+      <div className="flex flex-wrap items-center justify-between p-3.5 rounded-2xl bg-gradient-to-r from-[#388bfd]/15 via-[#a371f7]/10 to-[#388bfd]/5 border border-[#58a6ff]/30 shadow-md gap-3">
+        <div className="flex items-center gap-2.5">
+          <div className="p-2 rounded-xl bg-[#58a6ff]/20 text-[#58a6ff] shrink-0 shadow-sm">
+            <FileUp className="w-4 h-4" />
+          </div>
+          <div>
+            <div className="text-xs font-bold text-[#f0f6fc]">Import Existing Workflow YAML</div>
+            <div className="text-[11px] text-[#8b949e]">
+              Upload or paste your <code className="text-[#58a6ff]">.github/workflows/*.yml</code> to hydrate the visual builder.
+            </div>
+          </div>
+        </div>
+        <motion.button
+          type="button"
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
+          onClick={() => setImportModalOpen(true)}
+          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#58a6ff] hover:bg-[#1f6feb] text-white text-xs font-semibold whitespace-nowrap shadow-sm shadow-blue-950/40 transition-all shrink-0"
+        >
+          <FileUp className="w-3.5 h-3.5" />
+          <span>Import YAML</span>
+        </motion.button>
+      </div>
+
       {/* Workflow Identification */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
@@ -500,6 +547,90 @@ export const GlobalSettingsSection: React.FC = () => {
           </AnimatePresence>
         </div>
       </div>
+
+      {/* Workflow Environment Variables (env:) Card */}
+      <div className="p-4 rounded-2xl bg-[#161b22]/70 border border-white/[0.08] backdrop-blur-xl shadow-lg space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Braces className="w-4 h-4 text-[#58a6ff]" />
+            <div>
+              <h4 className="text-xs font-bold text-[#f0f6fc]">Workflow-Level Environment Variables (env:)</h4>
+              <p className="text-[11px] text-[#8b949e]">Accessible to all jobs, steps, and scripts in this pipeline.</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => addEnvVar('', '')}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-xs font-semibold text-[#f0f6fc] transition-all"
+          >
+            <Plus className="w-3.5 h-3.5 text-[#58a6ff]" />
+            <span>Add Variable</span>
+          </button>
+        </div>
+
+        {/* Quick Presets */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="text-[10px] text-[#8b949e]">Quick Presets:</span>
+          {[
+            { key: 'NODE_ENV', value: 'production' },
+            { key: 'CI', value: 'true' },
+            { key: 'ENVIRONMENT', value: 'staging' },
+          ].map((preset) => (
+            <button
+              key={preset.key}
+              type="button"
+              onClick={() => {
+                if (!envVars.some((e) => e.key === preset.key)) {
+                  addEnvVar(preset.key, preset.value);
+                }
+              }}
+              className="px-2 py-0.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.07] text-[10px] font-mono text-[#8b949e] hover:text-[#58a6ff]"
+            >
+              + {preset.key}: {preset.value}
+            </button>
+          ))}
+        </div>
+
+        {/* Variables List */}
+        {envVars.length > 0 ? (
+          <div className="space-y-2 pt-1">
+            {envVars.map((env, idx) => (
+              <div key={`env-${idx}`} className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={env.key}
+                  onChange={(e) => updateEnvVar(idx, e.target.value, env.value)}
+                  placeholder="KEY (e.g. API_URL)"
+                  className="flex-1 px-3 py-1.5 text-xs font-mono bg-[#0d1117]/80 border border-white/[0.08] rounded-xl text-[#f0f6fc] placeholder-[#484f58] focus:outline-none focus:border-[#58a6ff]"
+                />
+                <span className="text-[#6e7681] text-xs font-mono">=</span>
+                <input
+                  type="text"
+                  value={env.value}
+                  onChange={(e) => updateEnvVar(idx, env.key, e.target.value)}
+                  placeholder="VALUE (or ${{ secrets.KEY }})"
+                  className="flex-1 px-3 py-1.5 text-xs font-mono bg-[#0d1117]/80 border border-white/[0.08] rounded-xl text-[#f0f6fc] placeholder-[#484f58] focus:outline-none focus:border-[#58a6ff]"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeEnvVar(idx)}
+                  className="p-1.5 rounded-lg text-[#8b949e] hover:text-[#ff7b72] hover:bg-white/[0.06] transition-colors"
+                  title="Remove variable"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-[11px] text-[#6e7681] italic py-1">
+            No global environment variables set. Click "Add Variable" or select a preset above.
+          </div>
+        )}
+      </div>
+
+      {/* Import YAML Modal */}
+      <ImportYamlModal isOpen={importModalOpen} onClose={() => setImportModalOpen(false)} />
     </div>
   );
 };

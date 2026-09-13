@@ -52,6 +52,7 @@ export const ManualYamlEditor: React.FC<ManualYamlEditorProps> = ({
     activeYaml,
     validationResult,
     syncVisualToManual,
+    importYamlToVisual,
   } = useWorkflow();
 
   const { showToast } = useToast();
@@ -256,6 +257,32 @@ export const ManualYamlEditor: React.FC<ManualYamlEditorProps> = ({
     ta.scrollTop = Math.max(0, (targetLine - 5) * lineHeight);
   };
 
+  // Sync manual YAML code back to Visual Architect
+  const handleSyncToVisual = () => {
+    const currentCode = manualYaml || visualYaml;
+    const res = importYamlToVisual(currentCode);
+    if (res.success) {
+      setIsManualMode(false);
+      confetti({
+        particleCount: 35,
+        spread: 55,
+        origin: { y: 0.8 },
+        colors: ['#3fb950', '#58a6ff', '#a371f7'],
+      });
+      showToast({
+        type: 'success',
+        title: 'Synced to Visual Builder!',
+        description: 'Updated pipeline steps, triggers, and runner settings from manual code.',
+      });
+    } else {
+      showToast({
+        type: 'error',
+        title: 'Sync to Visual Failed',
+        description: res.error || 'Syntax errors detected. Fix errors before syncing to visual.',
+      });
+    }
+  };
+
   // Beautify / Format YAML
   const handleFormatYaml = () => {
     try {
@@ -389,6 +416,20 @@ export const ManualYamlEditor: React.FC<ManualYamlEditorProps> = ({
 
           {/* Action Toolbar (Strictly single line, non-wrapping) */}
           <div className="flex items-center gap-1.5 flex-nowrap shrink-0">
+            {/* Sync to Visual Builder */}
+            <motion.button
+              type="button"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleSyncToVisual}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#388bfd]/15 hover:bg-[#388bfd]/25 border border-[#388bfd]/30 text-[#79c0ff] hover:text-[#f0f6fc] text-xs font-semibold backdrop-blur-md transition-all whitespace-nowrap shrink-0"
+              title="Parse this YAML and load into the Visual Architect"
+            >
+              <ArrowRight className="w-3.5 h-3.5 text-[#58a6ff]" />
+              <span className="whitespace-nowrap hidden sm:inline">To Visual</span>
+              <span className="whitespace-nowrap sm:hidden">Visual</span>
+            </motion.button>
+
             {/* Sync from Visual Builder */}
             <motion.button
               type="button"

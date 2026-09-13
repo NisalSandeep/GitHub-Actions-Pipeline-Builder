@@ -65,6 +65,15 @@ export interface GlobalConfig {
     pullRequests: 'read' | 'write' | 'none';
     idToken: 'read' | 'write' | 'none';
   };
+  env: EnvVar[];
+}
+
+export interface MatrixConfig {
+  enabled: boolean;
+  os: RunnerOS[];
+  versions: string[];
+  failFast: boolean;
+  maxParallel?: number;
 }
 
 export interface NodeConfig {
@@ -167,9 +176,16 @@ export interface GitHubPagesDeploymentConfig {
   path: string;
 }
 
+export interface GitHubEnvironmentConfig {
+  enabled: boolean;
+  name: string;
+  url?: string;
+}
+
 export interface DeploymentConfig {
   enabled: boolean;
   target: DeploymentTarget;
+  environment: GitHubEnvironmentConfig;
   docker: DockerDeploymentConfig;
   aws: AwsDeploymentConfig;
   vercel: VercelDeploymentConfig;
@@ -178,6 +194,7 @@ export interface DeploymentConfig {
 
 export interface WorkflowState {
   global: GlobalConfig;
+  matrix: MatrixConfig;
   language: LanguageConfig;
   caching: CachingConfig;
   steps: StepConfig[];
@@ -197,4 +214,19 @@ export interface WorkflowPreset {
   badge: string;
   description: string;
   state: Partial<WorkflowState>;
+}
+
+export interface MarketplaceAction {
+  id: string;
+  name: string;
+  category: 'notifications' | 'security' | 'quality' | 'cloud' | 'releases' | 'utilities';
+  description: string;
+  uses: string;
+  with?: Record<string, string>;
+  env?: EnvVar[];
+  ifCondition?: string;
+  requiredSecrets?: { name: string; description: string; target: RequiredSecret['target'] }[];
+  documentationUrl?: string;
+  badge?: string;
+  icon?: string;
 }

@@ -21,11 +21,15 @@ import {
   AwsDeploymentConfig,
   VercelDeploymentConfig,
   GitHubPagesDeploymentConfig,
+  GitHubEnvironmentConfig,
   RequiredSecret,
+  MatrixConfig,
+  EnvVar,
 } from '../types/workflow';
 import { DEFAULT_WORKFLOW_STATE, WORKFLOW_PRESETS } from '../utils/presets';
 import { generateYaml, getRequiredSecrets } from '../utils/yamlGenerator';
 import { validateWorkflowYaml, ValidationResult } from '../utils/yamlValidator';
+import { parseYamlToWorkflow } from '../utils/yamlParser';
 
 interface WorkflowContextType {
   state: WorkflowState;
@@ -65,6 +69,10 @@ interface WorkflowContextType {
   updateAwsDeployment: (partial: Partial<AwsDeploymentConfig>) => void;
   updateVercelDeployment: (partial: Partial<VercelDeploymentConfig>) => void;
   updateGitHubPagesDeployment: (partial: Partial<GitHubPagesDeploymentConfig>) => void;
+  updateGitHubEnvironment: (partial: Partial<GitHubEnvironmentConfig>) => void;
+  updateMatrix: (partial: Partial<MatrixConfig>) => void;
+  updateGlobalEnv: (env: EnvVar[]) => void;
+  importYamlToVisual: (yamlText: string) => { success: boolean; error?: string; summary?: any };
   loadPreset: (presetId: string) => void;
   resetWorkflow: () => void;
 }
@@ -446,6 +454,19 @@ export const WorkflowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }));
   }, []);
 
+  const updateGitHubEnvironment = useCallback((partial: Partial<GitHubEnvironmentConfig>) => {
+    setState((prev) => ({
+      ...prev,
+      deployment: {
+        ...prev.deployment,
+        environment: {
+          ...(prev.deployment.environment || { enabled: false, name: 'production', url: '' }),
+          ...partial,
+        },
+      },
+    }));
+  }, []);
+
   const loadPreset = useCallback((presetId: string) => {
     const preset = WORKFLOW_PRESETS.find((p) => p.id === presetId);
     if (!preset) return;
@@ -458,6 +479,31 @@ export const WorkflowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       steps: preset.state.steps ? [...preset.state.steps] : prev.steps,
       deployment: { ...prev.deployment, ...preset.state.deployment },
     }));
+  }, []);
+
+  const updateMatrix = useCallback((partial: Partial<MatrixConfig>) => {
+    setState((prev) => ({
+      ...prev,
+      matrix: { ...prev.matrix, ...partial },
+    }));
+  }, []);
+
+  const updateGlobalEnv = useCallback((env: EnvVar[]) => {
+    setState((prev) => ({
+      ...prev,
+      global: { ...prev.global, env },
+    }));
+  }, []);
+
+  const importYamlToVisual = useCallback((yamlText: string) => {
+    const result = parseYamlToWorkflow(yamlText);
+    if (result.success && result.state) {
+      setState(result.state);
+      setManualYaml(yamlText);
+      setIsManualMode(false);
+      return { success: true, summary: result.summary };
+    }
+    return { success: false, error: result.error };
   }, []);
 
   const resetWorkflow = useCallback(() => {
@@ -504,6 +550,10 @@ export const WorkflowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         updateAwsDeployment,
         updateVercelDeployment,
         updateGitHubPagesDeployment,
+        updateGitHubEnvironment,
+        updateMatrix,
+        updateGlobalEnv,
+        importYamlToVisual,
         loadPreset,
         resetWorkflow,
       }}
