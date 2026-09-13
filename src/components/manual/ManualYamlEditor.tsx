@@ -62,9 +62,16 @@ export const ManualYamlEditor: React.FC<ManualYamlEditorProps> = ({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showDiagnostics, setShowDiagnostics] = useState(false);
 
-  // Textarea and cursor tracking
+  // Textarea, snippet container, and cursor tracking
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const lineNumbersRef = useRef<HTMLDivElement>(null);
+  const snippetContainerRef = useRef<HTMLDivElement>(null);
+
+  const handleSnippetWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    if (snippetContainerRef.current && e.deltaY !== 0) {
+      snippetContainerRef.current.scrollLeft += e.deltaY;
+    }
+  };
 
   const [cursorPos, setCursorPos] = useState({ line: 1, col: 1 });
   const [suggestions, setSuggestions] = useState<SuggestionItem[]>([]);
@@ -356,41 +363,37 @@ export const ManualYamlEditor: React.FC<ManualYamlEditorProps> = ({
             : 'border-white/[0.09] bg-[#0d1117]/80 backdrop-blur-2xl shadow-[0_16px_40px_rgba(0,0,0,0.5)] h-[calc(100vh-13rem)] min-h-[520px]'
         }`}
       >
-        {/* Top Header & Action Controls */}
-        {/* Top Header & Action Controls (Sticky so buttons are always visible) */}
-        <div className="sticky top-0 z-20 flex flex-wrap items-center justify-between px-4 py-2.5 border-b border-white/[0.08] bg-[#161b22]/95 backdrop-blur-2xl shadow-md gap-2 shrink-0">
-          <div className="flex items-center gap-2.5 min-w-0">
+        {/* Top Header & Action Controls (Single-Row IDE Header, Strictly Non-Wrapping) */}
+        <div className="sticky top-0 z-20 flex items-center justify-between px-3.5 py-2 border-b border-white/[0.08] bg-[#161b22]/95 backdrop-blur-2xl shadow-md gap-2 shrink-0 min-h-[46px]">
+          {/* File Tab & Mode Status Badge */}
+          <div className="flex items-center gap-2 min-w-0 shrink">
             <div className="p-1.5 rounded-lg bg-[#58a6ff]/10 border border-[#58a6ff]/30 text-[#58a6ff] shrink-0">
-              <FileCode className="w-4 h-4" />
+              <FileCode className="w-3.5 h-3.5" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-xs font-semibold text-[#f0f6fc] truncate">
-                  .github/workflows/{state.global.filename || 'main.yml'}
-                </span>
-                {isManualMode ? (
-                  <span className="px-2 py-0.5 rounded-full bg-[#f0883e]/20 text-[#ffa657] border border-[#f0883e]/40 text-[10px] font-semibold whitespace-nowrap shrink-0">
-                    Manual Mode Active
-                  </span>
-                ) : (
-                  <span className="px-2 py-0.5 rounded-full bg-[#238636]/20 text-[#3fb950] border border-[#238636]/40 text-[10px] font-semibold whitespace-nowrap shrink-0">
-                    Synced with Visual Builder
-                  </span>
-                )}
-              </div>
-              <p className="text-[11px] text-[#8b949e] truncate">
-                Type custom YAML with inline autocompletion (Tab/Enter) and instant validation
-              </p>
-            </div>
+            <span
+              className="font-mono text-xs font-semibold text-[#f0f6fc] truncate max-w-[140px] sm:max-w-[200px] md:max-w-xs"
+              title={`.github/workflows/${state.global.filename || 'main.yml'}`}
+            >
+              .github/workflows/{state.global.filename || 'main.yml'}
+            </span>
+            {isManualMode ? (
+              <span className="px-2 py-0.5 rounded-full bg-[#f0883e]/20 text-[#ffa657] border border-[#f0883e]/40 text-[10px] font-semibold whitespace-nowrap shrink-0">
+                Manual Mode
+              </span>
+            ) : (
+              <span className="px-2 py-0.5 rounded-full bg-[#238636]/20 text-[#3fb950] border border-[#238636]/40 text-[10px] font-semibold whitespace-nowrap shrink-0">
+                Visual Synced
+              </span>
+            )}
           </div>
 
-          {/* Action Toolbar */}
-          <div className="flex items-center gap-1.5 flex-nowrap shrink-0 overflow-x-auto">
+          {/* Action Toolbar (Strictly single line, non-wrapping) */}
+          <div className="flex items-center gap-1.5 flex-nowrap shrink-0">
             {/* Sync from Visual Builder */}
             <motion.button
               type="button"
-              whileHover={{ scale: 1.025 }}
-              whileTap={{ scale: 0.975 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => {
                 syncVisualToManual();
                 setIsManualMode(false);
@@ -400,20 +403,21 @@ export const ManualYamlEditor: React.FC<ManualYamlEditorProps> = ({
                   description: 'Loaded latest visual pipeline configuration into code editor.',
                 });
               }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-[#94a3b8] hover:text-[#f0f6fc] text-xs font-semibold backdrop-blur-md transition-all whitespace-nowrap shrink-0"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-[#94a3b8] hover:text-[#f0f6fc] text-xs font-semibold backdrop-blur-md transition-all whitespace-nowrap shrink-0"
               title="Reset code to match Visual Builder configuration"
             >
               <RotateCcw className="w-3.5 h-3.5 text-[#58a6ff]" />
-              <span className="whitespace-nowrap">Sync Visual</span>
+              <span className="whitespace-nowrap hidden sm:inline">Sync Visual</span>
+              <span className="whitespace-nowrap sm:hidden">Sync</span>
             </motion.button>
 
             {/* Format YAML Button */}
             <motion.button
               type="button"
-              whileHover={{ scale: 1.025 }}
-              whileTap={{ scale: 0.975 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={handleFormatYaml}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-[#94a3b8] hover:text-[#f0f6fc] text-xs font-semibold backdrop-blur-md transition-all whitespace-nowrap shrink-0"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-[#94a3b8] hover:text-[#f0f6fc] text-xs font-semibold backdrop-blur-md transition-all whitespace-nowrap shrink-0"
               title="Clean and beautify YAML indentation"
             >
               <Wand2 className="w-3.5 h-3.5 text-[#d29922]" />
@@ -423,12 +427,12 @@ export const ManualYamlEditor: React.FC<ManualYamlEditorProps> = ({
             {/* Copy Button */}
             <motion.button
               type="button"
-              whileHover={{ scale: 1.025 }}
-              whileTap={{ scale: 0.975 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={handleCopy}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold border backdrop-blur-md transition-all whitespace-nowrap shrink-0 ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border backdrop-blur-md transition-all whitespace-nowrap shrink-0 ${
                 copied
-                  ? 'bg-[#238636] border-[#2ea043] text-white shadow-md'
+                  ? 'bg-[#238636] border-[#2ea043] text-white shadow-md shadow-green-950/30'
                   : 'bg-white/[0.04] hover:bg-white/[0.08] border-white/[0.09] text-[#f0f6fc]'
               }`}
             >
@@ -439,10 +443,10 @@ export const ManualYamlEditor: React.FC<ManualYamlEditorProps> = ({
             {/* Download Button */}
             <motion.button
               type="button"
-              whileHover={{ scale: 1.025 }}
-              whileTap={{ scale: 0.975 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={handleDownload}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.09] text-[#f0f6fc] text-xs font-semibold backdrop-blur-md transition-all whitespace-nowrap shrink-0"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.09] text-[#f0f6fc] text-xs font-semibold backdrop-blur-md transition-all whitespace-nowrap shrink-0"
               title="Download .yml file"
             >
               <Download className="w-3.5 h-3.5 text-[#3fb950]" />
@@ -452,8 +456,8 @@ export const ManualYamlEditor: React.FC<ManualYamlEditorProps> = ({
             {/* Commit to GitHub Button */}
             <motion.button
               type="button"
-              whileHover={{ scale: 1.025 }}
-              whileTap={{ scale: 0.975 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => setCommitModalOpen(true)}
               className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-[#238636] hover:bg-[#2ea043] border border-white/10 text-white shadow-md shadow-green-950/40 backdrop-blur-md transition-all whitespace-nowrap shrink-0"
               title="Directly commit manual workflow to your GitHub repository"
@@ -471,33 +475,30 @@ export const ManualYamlEditor: React.FC<ManualYamlEditorProps> = ({
               className="p-1.5 rounded-xl bg-white/[0.03] border border-white/[0.08] text-[#8b949e] hover:text-[#f0f6fc] backdrop-blur-md shrink-0"
               title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen Editor'}
             >
-              {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+              {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5 text-[#8b949e]" />}
             </motion.button>
           </div>
         </div>
 
-        {/* Real-Time Validator Banner Bar */}
-        <div className="px-4 py-2 bg-[#121620]/90 border-b border-white/[0.08] flex items-center justify-between gap-3 flex-wrap">
-          <div className="flex items-center gap-2 flex-wrap">
+        {/* Real-Time Validator & Quick Stats Strip (Row 2, ultra sleek & compact) */}
+        <div className="px-3.5 py-1.5 bg-[#121620]/90 border-b border-white/[0.08] flex items-center justify-between gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
             {validationResult.isValid ? (
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-[#3fb950] bg-[#238636]/15 border border-[#238636]/35 px-3 py-1 rounded-xl shadow-sm shadow-green-950/20">
-                <CheckCircle2 className="w-4 h-4 text-[#3fb950] shrink-0" />
+              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#3fb950] bg-[#238636]/15 border border-[#238636]/35 px-2.5 py-0.5 rounded-lg shadow-sm shadow-green-950/20 whitespace-nowrap shrink-0">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#3fb950] shrink-0" />
                 <span>Valid GitHub Actions Workflow</span>
               </div>
             ) : (
-              <div className="flex items-center gap-2 text-xs font-semibold text-[#ff7b72] bg-[#f85149]/15 border border-[#f85149]/40 px-3 py-1 rounded-xl shadow-sm shadow-red-950/20">
-                <XCircle className="w-4 h-4 text-[#ff7b72] shrink-0" />
-                <span>
-                  Syntax Error on Line {validationResult.errors[0]?.line || 1}:{' '}
-                  <span className="font-normal text-[#f0f6fc]">
-                    {validationResult.errors[0]?.message}
-                  </span>
+              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#ff7b72] bg-[#f85149]/15 border border-[#f85149]/40 px-2.5 py-0.5 rounded-lg shadow-sm shadow-red-950/20 truncate min-w-0">
+                <XCircle className="w-3.5 h-3.5 text-[#ff7b72] shrink-0" />
+                <span className="truncate">
+                  Line {validationResult.errors[0]?.line || 1}: {validationResult.errors[0]?.message}
                 </span>
                 {validationResult.errors[0]?.line && (
                   <button
                     type="button"
                     onClick={() => jumpToLine(validationResult.errors[0].line)}
-                    className="underline hover:text-white text-[11px] font-mono ml-1"
+                    className="underline hover:text-white text-[10px] font-mono shrink-0 ml-1 text-[#ff7b72]"
                   >
                     [Jump]
                   </button>
@@ -506,33 +507,36 @@ export const ManualYamlEditor: React.FC<ManualYamlEditorProps> = ({
             )}
 
             {validationResult.warnings.length > 0 && (
-              <div className="flex items-center gap-1 text-[11px] font-medium text-[#d29922] bg-[#d29922]/15 border border-[#d29922]/30 px-2.5 py-0.5 rounded-xl">
+              <div className="hidden sm:flex items-center gap-1 text-[10px] font-medium text-[#d29922] bg-[#d29922]/15 border border-[#d29922]/30 px-2 py-0.5 rounded-lg shrink-0">
                 <AlertTriangle className="w-3 h-3 text-[#d29922]" />
-                <span>{validationResult.warnings.length} Best Practice Notice</span>
+                <span className="whitespace-nowrap">{validationResult.warnings.length} Notices</span>
               </div>
             )}
           </div>
 
           {/* Quick Stats Pills */}
-          <div className="flex items-center gap-2 text-[11px] text-[#8b949e]">
-            <span className="flex items-center gap-1 bg-white/[0.04] px-2 py-0.5 rounded-lg border border-white/[0.06]">
+          <div className="flex items-center gap-1.5 text-[11px] text-[#8b949e] shrink-0">
+            <span className="flex items-center gap-1 bg-white/[0.04] px-2 py-0.5 rounded-lg border border-white/[0.06] whitespace-nowrap">
               <Layers className="w-3 h-3 text-[#a371f7]" />
-              <strong>{validationResult.stats.jobsCount}</strong> Jobs
+              <strong>{validationResult.stats.jobsCount}</strong>
+              <span className="hidden sm:inline">Jobs</span>
             </span>
-            <span className="flex items-center gap-1 bg-white/[0.04] px-2 py-0.5 rounded-lg border border-white/[0.06]">
+            <span className="flex items-center gap-1 bg-white/[0.04] px-2 py-0.5 rounded-lg border border-white/[0.06] whitespace-nowrap">
               <FileCode className="w-3 h-3 text-[#58a6ff]" />
-              <strong>{validationResult.stats.stepsCount}</strong> Steps
+              <strong>{validationResult.stats.stepsCount}</strong>
+              <span className="hidden sm:inline">Steps</span>
             </span>
             {validationResult.stats.secrets.length > 0 && (
-              <span className="flex items-center gap-1 bg-[#388bfd]/15 text-[#79c0ff] px-2 py-0.5 rounded-lg border border-[#388bfd]/30">
+              <span className="hidden md:flex items-center gap-1 bg-[#388bfd]/15 text-[#79c0ff] px-2 py-0.5 rounded-lg border border-[#388bfd]/30 whitespace-nowrap">
                 <KeyRound className="w-3 h-3 text-[#58a6ff]" />
-                <strong>{validationResult.stats.secrets.length}</strong> Secrets
+                <strong>{validationResult.stats.secrets.length}</strong>
+                <span className="hidden lg:inline">Secrets</span>
               </span>
             )}
             <button
               type="button"
               onClick={() => setShowDiagnostics(!showDiagnostics)}
-              className="flex items-center gap-1 text-[#8b949e] hover:text-[#f0f6fc] text-[11px] ml-1"
+              className="flex items-center gap-1 text-[#8b949e] hover:text-[#f0f6fc] text-[11px] px-1.5 py-0.5 rounded-md hover:bg-white/[0.05] transition-colors ml-0.5"
             >
               <span>Details</span>
               {showDiagnostics ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
@@ -540,9 +544,13 @@ export const ManualYamlEditor: React.FC<ManualYamlEditorProps> = ({
           </div>
         </div>
 
-        {/* Quick Snippet Insert Chips Bar */}
-        <div className="px-4 py-2 bg-[#161b22]/50 border-b border-white/[0.06] flex items-center gap-1.5 overflow-x-auto select-none no-scrollbar">
-          <span className="text-[10px] font-bold text-[#8b949e] uppercase tracking-wider shrink-0 mr-1 flex items-center gap-1">
+        {/* Quick Snippet Insert Chips Bar (Row 3, smooth horizontal scroll with NO scrollbar) */}
+        <div
+          ref={snippetContainerRef}
+          onWheel={handleSnippetWheel}
+          className="px-3.5 py-2 bg-[#161b22]/50 border-b border-white/[0.06] flex items-center gap-1.5 overflow-x-auto select-none no-scrollbar scroll-smooth"
+        >
+          <span className="text-[10px] font-bold text-[#8b949e] uppercase tracking-wider shrink-0 mr-1 flex items-center gap-1 whitespace-nowrap">
             <Sparkles className="w-3 h-3 text-[#f0883e]" />
             Insert Snippet:
           </span>
@@ -560,10 +568,10 @@ export const ManualYamlEditor: React.FC<ManualYamlEditorProps> = ({
             <motion.button
               key={chip.label}
               type="button"
-              whileHover={{ scale: 1.05, y: -1 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.04, y: -1 }}
+              whileTap={{ scale: 0.96 }}
               onClick={() => insertSnippet(chip.snippet)}
-              className="px-2.5 py-1 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] hover:border-[#58a6ff]/40 text-[#c9d1d9] hover:text-[#58a6ff] border border-white/[0.08] text-[11px] font-mono whitespace-nowrap transition-all shadow-sm shrink-0"
+              className="px-2.5 py-1 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] hover:border-[#58a6ff]/40 text-[#c9d1d9] hover:text-[#58a6ff] border border-white/[0.08] text-[11px] font-mono whitespace-nowrap transition-all shadow-sm shrink-0 leading-none flex items-center"
             >
               {chip.label}
             </motion.button>
@@ -777,16 +785,18 @@ jobs:
 
         {/* Editor Bottom Status Bar */}
         <div className="px-4 py-1.5 bg-[#161b22]/90 border-t border-white/[0.08] flex items-center justify-between text-[11px] text-[#8b949e] shrink-0 font-mono">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <span>
               Ln <strong className="text-[#f0f6fc]">{cursorPos.line}</strong>, Col{' '}
               <strong className="text-[#f0f6fc]">{cursorPos.col}</strong>
             </span>
             <span>•</span>
             <span>{lines.length} lines</span>
+            <span className="hidden md:inline text-[#484f58]">•</span>
+            <span className="hidden md:inline text-[#6e7681]">Tab/Enter to autocomplete</span>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <span>Spaces: 2</span>
             <span>•</span>
             <span>UTF-8</span>
