@@ -1,8 +1,9 @@
 'use client';
 
 import React from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useWorkflow } from '../../context/WorkflowContext';
-import { HardDrive, Zap, Info, ShieldCheck } from 'lucide-react';
+import { HardDrive, Zap } from 'lucide-react';
 
 export const CacheSection: React.FC = () => {
   const { state, updateCaching } = useWorkflow();
@@ -35,9 +36,9 @@ export const CacheSection: React.FC = () => {
   return (
     <div className="space-y-4">
       {/* Primary Cache Switch */}
-      <div className="p-4.5 rounded-2xl bg-[#161b22]/60 border border-white/[0.08] backdrop-blur-xl flex items-center justify-between shadow-sm">
+      <div className="p-4.5 rounded-2xl bg-[#161b22]/70 border border-white/[0.08] backdrop-blur-xl flex items-center justify-between shadow-lg">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-[#388bfd]/15 border border-[#388bfd]/30">
+          <div className="p-2.5 rounded-xl bg-[#388bfd]/15 border border-[#388bfd]/30 shadow-inner">
             <HardDrive className="w-5 h-5 text-[#58a6ff]" />
           </div>
           <div>
@@ -64,47 +65,59 @@ export const CacheSection: React.FC = () => {
         </label>
       </div>
 
-      {state.caching.enabled && (
-        <div className="p-4.5 rounded-2xl bg-[#0d1117]/65 border border-white/[0.08] backdrop-blur-xl shadow-inner space-y-4 animate-fade-in">
-          <div className="flex items-start gap-2.5 text-xs text-[#94a3b8] bg-white/[0.03] p-3.5 rounded-xl border border-white/[0.08]">
-            <Zap className="w-4 h-4 text-[#ffa657] shrink-0 mt-0.5" />
-            <div>
-              <span className="font-semibold text-[#f0f6fc]">Auto-Optimized Strategy: </span>
-              {getLanguageCacheExplanation()}
-            </div>
-          </div>
+      <AnimatePresence>
+        {state.caching.enabled && (
+          <motion.div
+            initial={{ opacity: 0, height: 0, scale: 0.98 }}
+            animate={{ opacity: 1, height: 'auto', scale: 1 }}
+            exit={{ opacity: 0, height: 0, scale: 0.98 }}
+            transition={{ duration: 0.22, ease: 'easeOut' }}
+            className="overflow-hidden"
+          >
+            <div className="p-5 rounded-2xl bg-[#0d1117]/65 border border-white/[0.08] backdrop-blur-xl shadow-inner space-y-4">
+              <div className="flex items-start gap-3 text-xs text-[#94a3b8] bg-white/[0.03] p-3.5 rounded-xl border border-white/[0.08]">
+                <div className="p-1 rounded-lg bg-[#f0883e]/15 border border-[#f0883e]/30 shrink-0 mt-0.5">
+                  <Zap className="w-4 h-4 text-[#ffa657]" />
+                </div>
+                <div>
+                  <span className="font-semibold text-[#f0f6fc]">Auto-Optimized Strategy: </span>
+                  {getLanguageCacheExplanation()}
+                </div>
+              </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-[#f0f6fc] mb-1.5">
-                Cache Key Prefix
-              </label>
-              <input
-                type="text"
-                value={state.caching.cacheKeyPrefix}
-                onChange={(e) => updateCaching({ cacheKeyPrefix: e.target.value })}
-                placeholder="deps"
-                className="w-full px-3 py-1.5 text-xs bg-[#0d1117]/60 border border-white/[0.09] rounded-xl text-[#f0f6fc] font-mono focus:outline-none focus:border-[#58a6ff] focus:bg-[#0d1117]/90"
-              />
-              <span className="text-[10px] text-[#8b949e]">Prefix used for {'${{ runner.os }}'}-key hash</span>
-            </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-[#f0f6fc] mb-1.5">
+                    Cache Key Prefix
+                  </label>
+                  <input
+                    type="text"
+                    value={state.caching.cacheKeyPrefix}
+                    onChange={(e) => updateCaching({ cacheKeyPrefix: e.target.value })}
+                    placeholder="deps"
+                    className="w-full px-3 py-2 text-xs bg-[#0d1117]/60 border border-white/[0.09] rounded-xl text-[#f0f6fc] font-mono focus:outline-none focus:border-[#58a6ff] focus:ring-1 focus:ring-[#58a6ff]/30 transition-all backdrop-blur-md"
+                  />
+                  <span className="text-[10px] text-[#8b949e] mt-1 block">Prefix used for {'${{ runner.os }}'}-key hash</span>
+                </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-[#f0f6fc] mb-1.5">
-                Custom Cache Paths (Optional)
-              </label>
-              <textarea
-                value={state.caching.customPaths}
-                onChange={(e) => updateCaching({ customPaths: e.target.value })}
-                placeholder=".next/cache&#10;~/.cache/pip"
-                rows={2}
-                className="w-full px-3 py-1.5 text-xs bg-[#0d1117]/60 border border-white/[0.09] rounded-xl text-[#f0f6fc] font-mono focus:outline-none focus:border-[#58a6ff] focus:bg-[#0d1117]/90"
-              />
-              <span className="text-[10px] text-[#8b949e]">One path per line (e.g. .next/cache)</span>
+                <div>
+                  <label className="block text-xs font-semibold text-[#f0f6fc] mb-1.5">
+                    Custom Cache Paths (Optional)
+                  </label>
+                  <textarea
+                    value={state.caching.customPaths}
+                    onChange={(e) => updateCaching({ customPaths: e.target.value })}
+                    placeholder=".next/cache&#10;~/.cache/pip"
+                    rows={2}
+                    className="w-full px-3 py-2 text-xs bg-[#0d1117]/60 border border-white/[0.09] rounded-xl text-[#f0f6fc] font-mono focus:outline-none focus:border-[#58a6ff] focus:ring-1 focus:ring-[#58a6ff]/30 transition-all backdrop-blur-md"
+                  />
+                  <span className="text-[10px] text-[#8b949e] mt-1 block">One path per line (e.g. .next/cache)</span>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { motion } from 'framer-motion';
 import { useWorkflow } from '../../context/WorkflowContext';
 import { useToast } from '../../context/ToastContext';
 import Prism from 'prismjs';
@@ -190,8 +191,10 @@ export const YamlPreview: React.FC = () => {
             </div>
 
             {/* Wrap Toggle */}
-            <button
+            <motion.button
               type="button"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => setWrapLines(!wrapLines)}
               className={`p-2 rounded-xl border text-xs font-medium transition-all backdrop-blur-md ${
                 wrapLines
@@ -201,12 +204,14 @@ export const YamlPreview: React.FC = () => {
               title="Toggle word wrap"
             >
               <WrapText className="w-3.5 h-3.5" />
-            </button>
+            </motion.button>
 
             {/* Fullscreen Toggle / Exit Esc Button */}
             {isFullscreen ? (
-              <button
+              <motion.button
                 type="button"
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.96 }}
                 onClick={() => setIsFullscreen(false)}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-[#b62324]/20 hover:border-[#f85149]/60 hover:text-[#f85149] border border-white/[0.09] text-xs font-semibold text-[#f0f6fc] transition-all shadow-sm group backdrop-blur-md"
                 title="Exit Fullscreen (Esc)"
@@ -216,74 +221,85 @@ export const YamlPreview: React.FC = () => {
                 <kbd className="text-[10px] px-1.5 py-0.2 rounded bg-[#0d1117] border border-white/[0.08] font-mono text-[#8b949e] group-hover:text-[#f85149]">
                   Esc
                 </kbd>
-              </button>
+              </motion.button>
             ) : (
-              <button
+              <motion.button
                 type="button"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setIsFullscreen(true)}
                 className="p-2 rounded-xl bg-white/[0.03] border border-white/[0.08] text-[#8b949e] hover:text-[#f0f6fc] hover:border-[#58a6ff]/50 transition-all backdrop-blur-md"
                 title="Expand Fullscreen (Esc to exit)"
               >
                 <Maximize2 className="w-3.5 h-3.5" />
-              </button>
+              </motion.button>
             )}
 
-          {/* Copy to Clipboard Button */}
-          <button
-            type="button"
-            onClick={handleCopy}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold border backdrop-blur-md transition-all duration-200 active:scale-95 ${
-              copied
-                ? 'bg-[#238636] border-[#2ea043] text-white shadow-lg shadow-green-500/20 ring-2 ring-[#2ea043]/30'
-                : 'bg-white/[0.04] hover:bg-white/[0.08] border-white/[0.09] hover:border-white/[0.2] text-[#f0f6fc] shadow-sm'
-            }`}
-          >
-            {copied ? (
-              <>
-                <Check className="w-3.5 h-3.5 animate-bounce" />
-                <span>Copied!</span>
-              </>
-            ) : (
-              <>
-                <Copy className="w-3.5 h-3.5 text-[#58a6ff]" />
-                <span>Copy</span>
-              </>
-            )}
-          </button>
+            {/* Copy to Clipboard Button */}
+            <motion.button
+              type="button"
+              whileHover={{ scale: 1.025, y: -1 }}
+              whileTap={{ scale: 0.96 }}
+              transition={{ type: 'spring', stiffness: 450, damping: 25 }}
+              onClick={handleCopy}
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold border backdrop-blur-md transition-all duration-200 ${
+                copied
+                  ? 'bg-[#238636] border-[#2ea043] text-white shadow-lg shadow-green-500/20 ring-2 ring-[#2ea043]/30'
+                  : 'bg-white/[0.04] hover:bg-white/[0.08] border-white/[0.09] hover:border-white/[0.2] text-[#f0f6fc] shadow-sm'
+              }`}
+            >
+              {copied ? (
+                <>
+                  <Check className="w-3.5 h-3.5 animate-bounce" />
+                  <span>Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5 text-[#58a6ff]" />
+                  <span>Copy</span>
+                </>
+              )}
+            </motion.button>
 
-          {/* Download YAML Button */}
-          <button
-            type="button"
-            onClick={handleDownload}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold border backdrop-blur-md transition-all duration-200 active:scale-95 ${
-              downloadSuccess
-                ? 'bg-[#238636] border-[#2ea043] text-white shadow-lg shadow-green-500/20 ring-2 ring-[#2ea043]/30'
-                : 'bg-white/[0.04] hover:bg-white/[0.08] border-white/[0.09] hover:border-white/[0.2] text-[#f0f6fc] shadow-sm'
-            }`}
-          >
-            {downloadSuccess ? (
-              <>
-                <Check className="w-3.5 h-3.5 animate-bounce" />
-                <span>Downloaded!</span>
-              </>
-            ) : (
-              <>
-                <Download className="w-3.5 h-3.5" />
-                <span>Download .yml</span>
-              </>
-            )}
-          </button>
+            {/* Download YAML Button */}
+            <motion.button
+              type="button"
+              whileHover={{ scale: 1.025, y: -1 }}
+              whileTap={{ scale: 0.96 }}
+              transition={{ type: 'spring', stiffness: 450, damping: 25 }}
+              onClick={handleDownload}
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold border backdrop-blur-md transition-all duration-200 ${
+                downloadSuccess
+                  ? 'bg-[#238636] border-[#2ea043] text-white shadow-lg shadow-green-500/20 ring-2 ring-[#2ea043]/30'
+                  : 'bg-white/[0.04] hover:bg-white/[0.08] border-white/[0.09] hover:border-white/[0.2] text-[#f0f6fc] shadow-sm'
+              }`}
+            >
+              {downloadSuccess ? (
+                <>
+                  <Check className="w-3.5 h-3.5 animate-bounce" />
+                  <span>Downloaded!</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Download .yml</span>
+                </>
+              )}
+            </motion.button>
 
-          {/* Commit directly to GitHub Repository Button */}
-          <button
-            type="button"
-            onClick={() => setCommitModalOpen(true)}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-[#238636] hover:bg-[#2ea043] border border-white/10 text-white shadow-lg shadow-green-950/40 hover:shadow-green-500/20 backdrop-blur-md transition-all duration-200 active:scale-95 group"
-            title="Commit generated workflow directly to your GitHub repository"
-          >
-            <GitHubIcon className="w-3.5 h-3.5 text-white group-hover:scale-110 transition-transform" />
-            <span>Commit to GitHub</span>
-          </button>
+            {/* Commit directly to GitHub Repository Button */}
+            <motion.button
+              type="button"
+              whileHover={{ scale: 1.025, y: -1 }}
+              whileTap={{ scale: 0.96 }}
+              transition={{ type: 'spring', stiffness: 450, damping: 25 }}
+              onClick={() => setCommitModalOpen(true)}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-[#238636] hover:bg-[#2ea043] border border-white/10 text-white shadow-lg shadow-green-950/40 hover:shadow-green-500/20 backdrop-blur-md transition-all duration-200 group"
+              title="Commit generated workflow directly to your GitHub repository"
+            >
+              <GitHubIcon className="w-3.5 h-3.5 text-white group-hover:scale-110 transition-transform" />
+              <span>Commit to GitHub</span>
+            </motion.button>
         </div>
       </div>
 

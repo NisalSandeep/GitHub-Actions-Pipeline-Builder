@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useWorkflow } from '../../context/WorkflowContext';
 import { RunnerOS } from '../../types/workflow';
 import {
@@ -131,24 +132,27 @@ export const GlobalSettingsSection: React.FC = () => {
           {RUNNER_OPTIONS.map((runner) => {
             const isSelected = state.global.runsOn === runner.id;
             return (
-              <button
+              <motion.button
                 key={runner.id}
                 type="button"
+                whileHover={{ scale: 1.015, y: -1 }}
+                whileTap={{ scale: 0.985 }}
+                transition={{ duration: 0.15 }}
                 onClick={() => updateGlobal({ runsOn: runner.id })}
-                className={`flex items-start gap-3 p-3 rounded-2xl border text-left transition-all ${
+                className={`flex items-start gap-3 p-3 rounded-2xl border text-left transition-colors ${
                   isSelected
                     ? 'bg-[#1f6feb]/20 border-[#58a6ff] ring-1 ring-[#58a6ff]/50 shadow-[0_0_20px_rgba(56,139,253,0.2),inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-xl'
                     : 'bg-[#161b22]/60 border-white/[0.08] hover:border-[#58a6ff]/40 hover:bg-[#21262d]/70 backdrop-blur-xl shadow-sm'
                 }`}
               >
-                <div className="p-1.5 rounded-xl bg-[#0d1117]/80 border border-white/[0.08] shrink-0 mt-0.5">
+                <div className="p-1.5 rounded-xl bg-[#0d1117]/80 border border-white/[0.08] shrink-0 mt-0.5 shadow-inner">
                   {runner.icon}
                 </div>
                 <div className="min-w-0">
                   <div className="text-xs font-bold text-[#f0f6fc]">{runner.name}</div>
                   <div className="text-[11px] text-[#8b949e] truncate">{runner.desc}</div>
                 </div>
-              </button>
+              </motion.button>
             );
           })}
         </div>
@@ -366,9 +370,9 @@ export const GlobalSettingsSection: React.FC = () => {
       {/* Concurrency & Permissions Options */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Concurrency Card */}
-        <div className="p-3.5 rounded-xl bg-[#0d1117] border border-[#30363d] space-y-2">
+        <div className="p-4 rounded-2xl bg-[#161b22]/70 border border-white/[0.08] backdrop-blur-xl shadow-lg space-y-2.5">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-semibold text-[#f0f6fc] flex items-center gap-1.5 cursor-pointer">
+            <label className="text-xs font-semibold text-[#f0f6fc] flex items-center gap-2 cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={state.global.concurrency.enabled}
@@ -377,51 +381,59 @@ export const GlobalSettingsSection: React.FC = () => {
                     concurrency: { ...state.global.concurrency, enabled: e.target.checked },
                   })
                 }
-                className="w-3.5 h-3.5 rounded border-[#30363d] bg-[#161b22] text-[#2f81f7]"
+                className="w-4 h-4 rounded border-[#30363d] bg-[#161b22] text-[#2f81f7] focus:ring-0 cursor-pointer"
               />
               <Layers className="w-3.5 h-3.5 text-[#58a6ff]" />
               <span>Concurrency Control</span>
             </label>
           </div>
-          {state.global.concurrency.enabled && (
-            <div className="space-y-2 text-xs pt-1">
-              <div>
-                <span className="text-[11px] text-[#8b949e] block mb-1">Group key:</span>
-                <input
-                  type="text"
-                  value={state.global.concurrency.group}
-                  onChange={(e) =>
-                    updateGlobal({
-                      concurrency: { ...state.global.concurrency, group: e.target.value },
-                    })
-                  }
-                  className="w-full px-2 py-1 bg-[#161b22] border border-[#30363d] rounded text-[11px] font-mono text-[#c9d1d9] focus:outline-none focus:border-[#58a6ff]"
-                />
-              </div>
-              <label className="flex items-center gap-2 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={state.global.concurrency.cancelInProgress}
-                  onChange={(e) =>
-                    updateGlobal({
-                      concurrency: {
-                        ...state.global.concurrency,
-                        cancelInProgress: e.target.checked,
-                      },
-                    })
-                  }
-                  className="w-3.5 h-3.5 rounded border-[#30363d] bg-[#161b22] text-[#2f81f7]"
-                />
-                <span className="text-[11px] text-[#8b949e]">Cancel in-progress runs on new commit</span>
-              </label>
-            </div>
-          )}
+          <AnimatePresence initial={false}>
+            {state.global.concurrency.enabled && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
+                className="space-y-2.5 text-xs pt-1.5 overflow-hidden"
+              >
+                <div>
+                  <span className="text-[11px] text-[#8b949e] block mb-1">Group Key:</span>
+                  <input
+                    type="text"
+                    value={state.global.concurrency.group}
+                    onChange={(e) =>
+                      updateGlobal({
+                        concurrency: { ...state.global.concurrency, group: e.target.value },
+                      })
+                    }
+                    className="w-full px-3 py-1.5 bg-[#0d1117]/60 border border-white/[0.09] rounded-xl text-[11px] font-mono text-[#f0f6fc] focus:outline-none focus:border-[#58a6ff] backdrop-blur-md"
+                  />
+                </div>
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={state.global.concurrency.cancelInProgress}
+                    onChange={(e) =>
+                      updateGlobal({
+                        concurrency: {
+                          ...state.global.concurrency,
+                          cancelInProgress: e.target.checked,
+                        },
+                      })
+                    }
+                    className="w-3.5 h-3.5 rounded border-[#30363d] bg-[#161b22] text-[#2f81f7]"
+                  />
+                  <span className="text-[11px] text-[#94a3b8]">Cancel in-progress runs on new commit</span>
+                </label>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Permissions Card */}
-        <div className="p-3.5 rounded-xl bg-[#0d1117] border border-[#30363d] space-y-2">
+        <div className="p-4 rounded-2xl bg-[#161b22]/70 border border-white/[0.08] backdrop-blur-xl shadow-lg space-y-2.5">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-semibold text-[#f0f6fc] flex items-center gap-1.5 cursor-pointer">
+            <label className="text-xs font-semibold text-[#f0f6fc] flex items-center gap-2 cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={state.global.permissions.enabled}
@@ -430,54 +442,62 @@ export const GlobalSettingsSection: React.FC = () => {
                     permissions: { ...state.global.permissions, enabled: e.target.checked },
                   })
                 }
-                className="w-3.5 h-3.5 rounded border-[#30363d] bg-[#161b22] text-[#2f81f7]"
+                className="w-4 h-4 rounded border-[#30363d] bg-[#161b22] text-[#2f81f7] focus:ring-0 cursor-pointer"
               />
               <Shield className="w-3.5 h-3.5 text-[#3fb950]" />
               <span>Explicit GITHUB_TOKEN Permissions</span>
             </label>
           </div>
-          {state.global.permissions.enabled && (
-            <div className="grid grid-cols-2 gap-2 text-xs pt-1">
-              <div>
-                <span className="text-[11px] text-[#8b949e] block mb-1">contents:</span>
-                <select
-                  value={state.global.permissions.contents}
-                  onChange={(e) =>
-                    updateGlobal({
-                      permissions: {
-                        ...state.global.permissions,
-                        contents: e.target.value as any,
-                      },
-                    })
-                  }
-                  className="w-full px-2 py-1 bg-[#161b22] border border-[#30363d] rounded text-[11px] text-[#c9d1d9] focus:outline-none"
-                >
-                  <option value="read">read</option>
-                  <option value="write">write</option>
-                  <option value="none">none</option>
-                </select>
-              </div>
-              <div>
-                <span className="text-[11px] text-[#8b949e] block mb-1">pull-requests:</span>
-                <select
-                  value={state.global.permissions.pullRequests}
-                  onChange={(e) =>
-                    updateGlobal({
-                      permissions: {
-                        ...state.global.permissions,
-                        pullRequests: e.target.value as any,
-                      },
-                    })
-                  }
-                  className="w-full px-2 py-1 bg-[#161b22] border border-[#30363d] rounded text-[11px] text-[#c9d1d9] focus:outline-none"
-                >
-                  <option value="none">none</option>
-                  <option value="read">read</option>
-                  <option value="write">write</option>
-                </select>
-              </div>
-            </div>
-          )}
+          <AnimatePresence initial={false}>
+            {state.global.permissions.enabled && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
+                className="grid grid-cols-2 gap-2.5 text-xs pt-1.5 overflow-hidden"
+              >
+                <div>
+                  <span className="text-[11px] text-[#8b949e] block mb-1">contents:</span>
+                  <select
+                    value={state.global.permissions.contents}
+                    onChange={(e) =>
+                      updateGlobal({
+                        permissions: {
+                          ...state.global.permissions,
+                          contents: e.target.value as any,
+                        },
+                      })
+                    }
+                    className="w-full px-2.5 py-1.5 bg-[#0d1117]/60 border border-white/[0.09] rounded-xl text-[11px] text-[#f0f6fc] focus:outline-none focus:border-[#58a6ff] backdrop-blur-md"
+                  >
+                    <option value="read">read</option>
+                    <option value="write">write</option>
+                    <option value="none">none</option>
+                  </select>
+                </div>
+                <div>
+                  <span className="text-[11px] text-[#8b949e] block mb-1">pull-requests:</span>
+                  <select
+                    value={state.global.permissions.pullRequests}
+                    onChange={(e) =>
+                      updateGlobal({
+                        permissions: {
+                          ...state.global.permissions,
+                          pullRequests: e.target.value as any,
+                        },
+                      })
+                    }
+                    className="w-full px-2.5 py-1.5 bg-[#0d1117]/60 border border-white/[0.09] rounded-xl text-[11px] text-[#f0f6fc] focus:outline-none focus:border-[#58a6ff] backdrop-blur-md"
+                  >
+                    <option value="none">none</option>
+                    <option value="read">read</option>
+                    <option value="write">write</option>
+                  </select>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </div>

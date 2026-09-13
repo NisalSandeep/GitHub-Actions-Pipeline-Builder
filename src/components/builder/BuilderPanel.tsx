@@ -55,20 +55,23 @@ interface SectionMeta {
 
 const slideVariants = {
   enter: (direction: number) => ({
-    x: direction > 0 ? 25 : -25,
+    x: direction > 0 ? 26 : -26,
     opacity: 0,
+    filter: 'blur(4px)',
   }),
   center: {
     x: 0,
     opacity: 1,
+    filter: 'blur(0px)',
     transition: {
-      duration: 0.2,
+      duration: 0.22,
       ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
     },
   },
   exit: (direction: number) => ({
-    x: direction > 0 ? -25 : 25,
+    x: direction > 0 ? -26 : 26,
     opacity: 0,
+    filter: 'blur(4px)',
     transition: {
       duration: 0.16,
       ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
@@ -320,7 +323,7 @@ export const BuilderPanel: React.FC = () => {
                 <motion.div
                   layoutId="activeSectionPill"
                   className="absolute inset-0 rounded-xl bg-[#21262d]/90 border border-[#388bfd]/60 shadow-lg shadow-blue-500/10 -z-10 backdrop-blur-md"
-                  transition={{ type: 'spring', stiffness: 480, damping: 34 }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 35, mass: 0.8 }}
                 />
               )}
               <span
@@ -384,27 +387,31 @@ export const BuilderPanel: React.FC = () => {
           {/* Bottom Stepper Navigation: Previous & Next Section Buttons */}
           <div className="p-3.5 bg-white/[0.015] border-t border-white/[0.08] flex items-center justify-between gap-3">
             {prevSection ? (
-              <button
+              <motion.button
                 type="button"
+                whileHover={{ scale: 1.02, x: -2 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => navigateToSection(prevSection.id)}
-                className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-xs font-semibold text-[#f0f6fc] border border-white/[0.09] transition-all hover:border-[#58a6ff]/40 active:scale-95"
+                className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-xs font-semibold text-[#f0f6fc] border border-white/[0.09] transition-colors hover:border-[#58a6ff]/40"
               >
                 <ArrowLeft className="w-3.5 h-3.5 text-[#8b949e]" />
                 <span>Previous: {prevSection.shortTitle}</span>
-              </button>
+              </motion.button>
             ) : (
               <div />
             )}
 
             {nextSection ? (
-              <button
+              <motion.button
                 type="button"
+                whileHover={{ scale: 1.025, x: 2 }}
+                whileTap={{ scale: 0.975 }}
                 onClick={() => navigateToSection(nextSection.id)}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#238636] hover:bg-[#2ea043] text-xs font-semibold text-white shadow-lg shadow-green-950/40 transition-all active:scale-95 ml-auto ring-1 ring-white/10"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#238636] hover:bg-[#2ea043] text-xs font-semibold text-white shadow-lg shadow-green-950/40 transition-colors ml-auto ring-1 ring-white/10"
               >
                 <span>Next: {nextSection.shortTitle}</span>
                 <ArrowRight className="w-3.5 h-3.5 text-white" />
-              </button>
+              </motion.button>
             ) : (
               <div className="text-xs text-[#3fb950] font-semibold flex items-center gap-1.5 py-2 px-3 bg-[#238636]/15 rounded-xl border border-[#238636]/40">
                 <CheckCircle2 className="w-4 h-4" />

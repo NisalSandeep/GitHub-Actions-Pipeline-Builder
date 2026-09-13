@@ -28,6 +28,7 @@ import {
   VercelIcon,
   DockerIcon,
   AwsIcon,
+  GitHubIcon,
 } from './icons/BrandIcons';
 
 export const Header: React.FC = () => {
@@ -101,14 +102,8 @@ export const Header: React.FC = () => {
       <div className="mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
         {/* Brand & Title */}
         <div className="flex items-center gap-3 w-full md:w-auto">
-          <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-[#2f81f7] to-[#1f6feb] text-white shadow-lg shadow-blue-500/25 ring-1 ring-white/20">
-            <svg
-              className="w-6 h-6 fill-current"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
-            </svg>
+          <div className="relative flex items-center justify-center w-10 h-10 rounded-2xl bg-gradient-to-b from-[#21262d] to-[#161b22] border border-white/[0.15] shadow-[0_4px_16px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.15)] p-2 group hover:scale-105 transition-transform">
+            <GitHubIcon className="w-6 h-6 text-white group-hover:scale-110 transition-transform" />
             <span className="absolute -bottom-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#238636] ring-2 ring-[#0d1117]">
               <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
             </span>
@@ -155,15 +150,17 @@ export const Header: React.FC = () => {
         <div className="flex items-center gap-2 w-full md:w-auto justify-end">
           {/* Preset Selector Dropdown */}
           <div className="relative">
-            <button
+            <motion.button
+              whileHover={{ scale: 1.025, y: -1 }}
+              whileTap={{ scale: 0.975 }}
               onClick={() => setPresetDropdownOpen(!presetDropdownOpen)}
-              className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-[#f0f6fc] text-xs font-semibold border border-white/[0.09] hover:border-[#58a6ff]/50 backdrop-blur-md shadow-sm transition-all active:scale-95"
+              className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-[#f0f6fc] text-xs font-semibold border border-white/[0.09] hover:border-[#58a6ff]/50 backdrop-blur-md shadow-sm transition-all"
               title="Load standard production workflow templates"
             >
               <Sparkles className="w-3.5 h-3.5 text-[#f0883e]" />
               <span>Templates</span>
-              <ChevronDown className="w-3.5 h-3.5 text-[#8b949e]" />
-            </button>
+              <ChevronDown className={`w-3.5 h-3.5 text-[#8b949e] transition-transform duration-200 ${presetDropdownOpen ? 'rotate-180' : ''}`} />
+            </motion.button>
 
             <AnimatePresence>
               {presetDropdownOpen && (
@@ -173,10 +170,10 @@ export const Header: React.FC = () => {
                     onClick={() => setPresetDropdownOpen(false)}
                   />
                   <motion.div
-                    initial={{ opacity: 0, y: -6, scale: 0.96 }}
+                    initial={{ opacity: 0, y: -8, scale: 0.96 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -6, scale: 0.96 }}
-                    transition={{ duration: 0.15, ease: 'easeOut' }}
+                    exit={{ opacity: 0, y: -8, scale: 0.96 }}
+                    transition={{ duration: 0.18, ease: 'easeOut' }}
                     className="absolute right-0 mt-2 w-80 rounded-2xl bg-[#161b22]/90 border border-white/[0.12] backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.08)] p-2 z-50"
                   >
                     <div className="px-3 py-2 text-[11px] font-semibold text-[#8b949e] uppercase tracking-wider border-b border-white/[0.08]">
@@ -184,8 +181,10 @@ export const Header: React.FC = () => {
                     </div>
                     <div className="py-1 space-y-1 max-h-84 overflow-y-auto">
                       {WORKFLOW_PRESETS.map((preset) => (
-                        <button
+                        <motion.button
                           key={preset.id}
+                          whileHover={{ x: 2, backgroundColor: 'rgba(255,255,255,0.06)' }}
+                          whileTap={{ scale: 0.98 }}
                           onClick={() => {
                             loadPreset(preset.id);
                             setPresetDropdownOpen(false);
@@ -195,25 +194,25 @@ export const Header: React.FC = () => {
                               description: preset.description,
                             });
                           }}
-                          className="w-full text-left p-2.5 rounded-lg hover:bg-[#21262d] border border-transparent hover:border-[#30363d] transition-colors group flex items-start gap-2.5"
+                          className="w-full text-left p-2.5 rounded-xl border border-transparent hover:border-white/[0.08] transition-all group flex items-start gap-3"
                         >
-                          <div className="p-1 rounded bg-[#0d1117] border border-[#30363d] mt-0.5">
+                          <div className="p-1.5 rounded-xl bg-[#0d1117]/80 border border-white/[0.08] shadow-inner mt-0.5 shrink-0 flex items-center justify-center">
                             {getPresetIcon(preset.id)}
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between">
-                              <span className="text-xs font-semibold text-[#f0f6fc] group-hover:text-[#58a6ff]">
+                              <span className="text-xs font-semibold text-[#f0f6fc] group-hover:text-[#58a6ff] transition-colors">
                                 {preset.name}
                               </span>
-                              <span className="text-[9px] px-1.5 py-0.2 rounded bg-[#30363d] text-[#8b949e]">
+                              <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-white/[0.06] text-[#8b949e] border border-white/[0.06] font-medium">
                                 {preset.badge}
                               </span>
                             </div>
-                            <p className="text-[11px] text-[#8b949e] line-clamp-2 mt-0.5">
+                            <p className="text-[11px] text-[#8b949e] line-clamp-2 mt-0.5 leading-relaxed">
                               {preset.description}
                             </p>
                           </div>
-                        </button>
+                        </motion.button>
                       ))}
                     </div>
                   </motion.div>
@@ -223,11 +222,13 @@ export const Header: React.FC = () => {
           </div>
 
           {/* Reset Button */}
-          <button
+          <motion.button
+            whileHover={{ scale: 1.025, y: -1 }}
+            whileTap={{ scale: 0.96 }}
             onClick={handleReset}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition-all ${
               resetSuccess
-                ? 'bg-[#238636] border-[#2ea043] text-white'
+                ? 'bg-[#238636] border-[#2ea043] text-white shadow-md'
                 : 'bg-white/[0.04] hover:bg-red-500/10 hover:border-red-500/40 hover:text-[#ff7b72] text-[#94a3b8] border-white/[0.08] backdrop-blur-md'
             }`}
             title="Reset workflow to default Node.js CI"
@@ -243,10 +244,12 @@ export const Header: React.FC = () => {
                 <span className="hidden sm:inline">Reset</span>
               </>
             )}
-          </button>
+          </motion.button>
 
           {/* Documentation Link */}
-          <a
+          <motion.a
+            whileHover={{ scale: 1.025, y: -1 }}
+            whileTap={{ scale: 0.96 }}
             href="https://docs.github.com/en/actions"
             target="_blank"
             rel="noreferrer"
@@ -254,7 +257,7 @@ export const Header: React.FC = () => {
           >
             <span>Docs</span>
             <ExternalLink className="w-3 h-3" />
-          </a>
+          </motion.a>
         </div>
       </div>
     </header>

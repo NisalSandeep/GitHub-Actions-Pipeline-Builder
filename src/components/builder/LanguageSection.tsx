@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { useWorkflow } from '../../context/WorkflowContext';
 import { LanguageType } from '../../types/workflow';
 import {
@@ -244,18 +245,21 @@ export const LanguageSection: React.FC = () => {
           {LANGUAGES.map((lang) => {
             const isSelected = state.language.type === lang.type;
             return (
-              <button
+              <motion.button
                 key={lang.type}
                 type="button"
+                whileHover={{ scale: 1.025, y: -2 }}
+                whileTap={{ scale: 0.975 }}
+                transition={{ duration: 0.15 }}
                 onClick={() => updateLanguageType(lang.type)}
-                className={`relative flex flex-col items-start p-3.5 rounded-2xl border text-left transition-all ${
+                className={`relative flex flex-col items-start p-3.5 rounded-2xl border text-left transition-colors ${
                   isSelected
-                    ? 'bg-[#1f6feb]/20 border-[#58a6ff] shadow-[0_0_24px_rgba(56,139,253,0.22),inset_0_1px_0_rgba(255,255,255,0.12)] ring-1 ring-[#58a6ff]/50 backdrop-blur-xl'
-                    : 'bg-[#161b22]/60 border-white/[0.08] hover:border-[#58a6ff]/40 hover:bg-[#21262d]/70 backdrop-blur-xl shadow-sm hover:shadow-[0_8px_20px_rgba(0,0,0,0.3)]'
+                    ? 'bg-[#1f6feb]/20 border-[#58a6ff] shadow-[0_0_24px_rgba(56,139,253,0.25),inset_0_1px_0_rgba(255,255,255,0.15)] ring-1 ring-[#58a6ff]/60 backdrop-blur-xl'
+                    : 'bg-[#161b22]/60 border-white/[0.08] hover:border-[#58a6ff]/40 hover:bg-[#21262d]/70 backdrop-blur-xl shadow-sm hover:shadow-[0_8px_24px_rgba(0,0,0,0.35)]'
                 }`}
               >
                 <div className="flex items-center justify-between w-full mb-2">
-                  <div className="p-1.5 rounded-xl bg-[#0d1117]/80 border border-white/[0.08]">
+                  <div className="p-1.5 rounded-xl bg-[#0d1117]/80 border border-white/[0.08] shadow-inner">
                     {lang.icon}
                   </div>
                   {isSelected && (
@@ -264,7 +268,7 @@ export const LanguageSection: React.FC = () => {
                 </div>
                 <div className="text-xs font-bold text-[#f0f6fc]">{lang.name}</div>
                 <div className="text-[10px] text-[#8b949e] truncate w-full">{lang.desc}</div>
-              </button>
+              </motion.button>
             );
           })}
         </div>

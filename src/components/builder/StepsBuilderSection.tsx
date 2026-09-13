@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWorkflow } from '../../context/WorkflowContext';
 import { useToast } from '../../context/ToastContext';
@@ -47,6 +48,11 @@ export const StepsBuilderSection: React.FC = () => {
   const [expandedSteps, setExpandedSteps] = useState<Record<string, boolean>>({});
   const [templateModalOpen, setTemplateModalOpen] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const getStepIcon = (step: { name?: string; uses?: string; run?: string }) => {
     const str = `${step.name || ''} ${step.uses || ''} ${step.run || ''}`.toLowerCase();
@@ -136,18 +142,22 @@ export const StepsBuilderSection: React.FC = () => {
 
         <div className="flex items-center gap-2">
           {/* Templates Library Button */}
-          <button
+          <motion.button
             type="button"
+            whileHover={{ scale: 1.025, y: -1 }}
+            whileTap={{ scale: 0.975 }}
             onClick={() => setTemplateModalOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-[#ffa657] border border-white/[0.08] hover:border-[#f0883e]/50 backdrop-blur-md shadow-sm transition-all active:scale-95"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-[#ffa657] border border-white/[0.08] hover:border-[#f0883e]/50 backdrop-blur-md shadow-sm transition-all"
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span>Preset Library</span>
-          </button>
+          </motion.button>
 
           {/* Add Custom Step Button */}
-          <button
+          <motion.button
             type="button"
+            whileHover={{ scale: 1.025, y: -1 }}
+            whileTap={{ scale: 0.975 }}
             onClick={() => {
               addStep();
               showToast({
@@ -156,11 +166,11 @@ export const StepsBuilderSection: React.FC = () => {
                 description: 'New blank step appended to the workflow',
               });
             }}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-xl bg-[#238636] hover:bg-[#2ea043] text-white shadow-lg shadow-green-950/40 backdrop-blur-md transition-all active:scale-95 ring-1 ring-white/10"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-xl bg-[#238636] hover:bg-[#2ea043] text-white shadow-lg shadow-green-950/40 backdrop-blur-md transition-all ring-1 ring-white/10"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add Step</span>
-          </button>
+          </motion.button>
         </div>
       </div>
 
@@ -205,7 +215,7 @@ export const StepsBuilderSection: React.FC = () => {
                       <span className="w-5 h-5 flex items-center justify-center rounded-full bg-[#21262d] text-[10px] font-mono font-bold text-[#8b949e]">
                         {index + 1}
                       </span>
-                      <div className="p-1 rounded-md bg-[#0d1117] border border-[#30363d]">
+                      <div className="p-1.5 rounded-xl bg-[#0d1117]/80 border border-white/[0.08] shadow-inner flex items-center justify-center">
                         {getStepIcon(step)}
                       </div>
                     </div>
@@ -299,233 +309,244 @@ export const StepsBuilderSection: React.FC = () => {
                       transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
                       className="overflow-hidden"
                     >
-                      <div className="p-3.5 pt-0 border-t border-[#21262d] space-y-3 mt-1">
+                      <div className="p-4 pt-0 border-t border-white/[0.08] space-y-3 mt-1">
                         {/* Step Name Input */}
                         <div>
-                          <label className="block text-[11px] font-semibold text-[#8b949e] mb-1">
+                          <label className="block text-[11px] font-semibold text-[#8b949e] mb-1.5">
                             Step Name
                           </label>
                           <input
                             type="text"
-                      value={step.name}
-                      onChange={(e) => updateStep(step.id, { name: e.target.value })}
-                      placeholder="e.g. Run Unit Tests"
-                      className="w-full px-2.5 py-1.5 text-xs bg-[#0d1117] border border-[#30363d] rounded-lg text-[#f0f6fc] focus:outline-none focus:border-[#58a6ff]"
-                    />
-                  </div>
+                            value={step.name}
+                            onChange={(e) => updateStep(step.id, { name: e.target.value })}
+                            placeholder="e.g. Run Unit Tests"
+                            className="w-full px-3 py-2 text-xs bg-[#0d1117]/60 border border-white/[0.09] rounded-xl text-[#f0f6fc] focus:outline-none focus:border-[#58a6ff] focus:ring-1 focus:ring-[#58a6ff]/30 backdrop-blur-md transition-all"
+                          />
+                        </div>
 
-                  {/* Mode: Run Command or Uses Action */}
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <label className="block text-[11px] font-semibold text-[#8b949e]">
-                        {step.uses ? 'Action to Use (uses:)' : 'Shell Command (run:)'}
-                      </label>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (step.uses) {
-                            updateStep(step.id, { uses: undefined, run: 'npm test' });
-                          } else {
-                            updateStep(step.id, { uses: 'actions/upload-artifact@v4', run: undefined });
-                          }
-                        }}
-                        className="text-[10px] text-[#58a6ff] hover:underline"
-                      >
-                        Switch to {step.uses ? 'Run Command' : 'uses: Action'}
-                      </button>
-                    </div>
-
-                    {step.uses ? (
-                      <input
-                        type="text"
-                        value={step.uses}
-                        onChange={(e) => updateStep(step.id, { uses: e.target.value })}
-                        placeholder="e.g. actions/upload-artifact@v4"
-                        className="w-full px-2.5 py-1.5 text-xs font-mono bg-[#0d1117] border border-[#30363d] rounded-lg text-[#79c0ff] focus:outline-none focus:border-[#58a6ff]"
-                      />
-                    ) : (
-                      <textarea
-                        value={step.run || ''}
-                        onChange={(e) => updateStep(step.id, { run: e.target.value })}
-                        placeholder="npm run test&#10;npm run build"
-                        rows={3}
-                        className="w-full px-2.5 py-1.5 text-xs font-mono bg-[#0d1117] border border-[#30363d] rounded-lg text-[#c9d1d9] focus:outline-none focus:border-[#58a6ff]"
-                      />
-                    )}
-                  </div>
-
-                  {/* Environment Variables Section */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <label className="text-[11px] font-semibold text-[#8b949e] flex items-center gap-1">
-                        <Key className="w-3 h-3 text-[#f0883e]" />
-                        Environment Variables (env:)
-                      </label>
-                      <button
-                        type="button"
-                        onClick={() => addEnvVar(step.id)}
-                        className="text-[10px] text-[#58a6ff] hover:underline flex items-center gap-0.5"
-                      >
-                        <Plus className="w-2.5 h-2.5" />
-                        Add Env Var
-                      </button>
-                    </div>
-
-                    {step.env.length > 0 && (
-                      <div className="space-y-1.5 bg-[#0d1117] p-2 rounded-lg border border-[#30363d]">
-                        {step.env.map((env, envIdx) => (
-                          <div key={envIdx} className="flex items-center gap-2">
-                            <input
-                              type="text"
-                              value={env.key}
-                              onChange={(e) =>
-                                updateEnvVar(step.id, envIdx, 'key', e.target.value)
-                              }
-                              placeholder="KEY"
-                              className="w-1/3 px-2 py-1 text-xs font-mono bg-[#161b22] border border-[#30363d] rounded text-[#f0f6fc] focus:outline-none focus:border-[#58a6ff]"
-                            />
-                            <span className="text-[#6e7681] text-xs">:</span>
-                            <input
-                              type="text"
-                              value={env.value}
-                              onChange={(e) =>
-                                updateEnvVar(step.id, envIdx, 'value', e.target.value)
-                              }
-                              placeholder="value or ${{ secrets.TOKEN }}"
-                              className="flex-1 px-2 py-1 text-xs font-mono bg-[#161b22] border border-[#30363d] rounded text-[#79c0ff] focus:outline-none focus:border-[#58a6ff]"
-                            />
+                        {/* Mode: Run Command or Uses Action */}
+                        <div className="space-y-1.5">
+                          <div className="flex items-center justify-between">
+                            <label className="block text-[11px] font-semibold text-[#8b949e]">
+                              {step.uses ? 'Action to Use (uses:)' : 'Shell Command (run:)'}
+                            </label>
                             <button
                               type="button"
-                              onClick={() => removeEnvVar(step.id, envIdx)}
-                              className="text-[#8b949e] hover:text-[#f85149] p-1"
+                              onClick={() => {
+                                if (step.uses) {
+                                  updateStep(step.id, { uses: undefined, run: 'npm test' });
+                                } else {
+                                  updateStep(step.id, { uses: 'actions/upload-artifact@v4', run: undefined });
+                                }
+                              }}
+                              className="text-[10px] text-[#58a6ff] hover:underline"
                             >
-                              <X className="w-3 h-3" />
+                              Switch to {step.uses ? 'Run Command' : 'uses: Action'}
                             </button>
                           </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
 
-                  {/* Advanced Options (Conditional if:, Working Directory) */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-                    <div>
-                      <span className="text-[10px] text-[#8b949e] block mb-1">
-                        Conditional (if:)
-                      </span>
-                      <input
-                        type="text"
-                        value={step.ifCondition || ''}
-                        onChange={(e) => updateStep(step.id, { ifCondition: e.target.value })}
-                        placeholder="e.g. success() && github.ref == 'refs/heads/main'"
-                        className="w-full px-2 py-1 text-[11px] font-mono bg-[#0d1117] border border-[#30363d] rounded text-[#c9d1d9] focus:outline-none"
-                      />
-                    </div>
-
-                    <div>
-                      <span className="text-[10px] text-[#8b949e] block mb-1">
-                        Working Directory
-                      </span>
-                      <input
-                        type="text"
-                        value={step.workingDirectory || ''}
-                        onChange={(e) => updateStep(step.id, { workingDirectory: e.target.value })}
-                        placeholder="./backend"
-                        className="w-full px-2 py-1 text-[11px] font-mono bg-[#0d1117] border border-[#30363d] rounded text-[#c9d1d9] focus:outline-none"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
-      );
-    })}
-  </AnimatePresence>
-</div>
-
-      {/* Preset Library Modal */}
-      <AnimatePresence>
-        {templateModalOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
-              onClick={() => setTemplateModalOpen(false)}
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: '-46%', x: '-50%' }}
-              animate={{ opacity: 1, scale: 1, y: '-50%', x: '-50%' }}
-              exit={{ opacity: 0, scale: 0.95, y: '-46%', x: '-50%' }}
-              transition={{ duration: 0.18, ease: 'easeOut' }}
-              className="fixed top-1/2 left-1/2 w-full max-w-xl bg-[#161b22] border border-[#30363d] rounded-2xl shadow-2xl z-50 p-5 space-y-4 max-h-[85vh] overflow-y-auto"
-            >
-              <div className="flex items-center justify-between pb-3 border-b border-[#30363d]">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-[#f0883e]" />
-                  <h3 className="text-sm font-bold text-[#f0f6fc]">
-                    Step Preset Library
-                  </h3>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setTemplateModalOpen(false)}
-                  className="p-1 rounded-lg hover:bg-[#21262d] text-[#8b949e] hover:text-[#f0f6fc]"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 gap-2.5">
-                {STEP_TEMPLATES.map((tmpl, idx) => (
-                  <div
-                    key={idx}
-                    className="p-3 rounded-xl bg-[#0d1117] border border-[#30363d] hover:border-[#58a6ff] transition-all flex items-center justify-between gap-3 group"
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="p-2 rounded-lg bg-[#161b22] border border-[#30363d] shrink-0">
-                        {getStepIcon(tmpl)}
-                      </div>
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-semibold text-[#f0f6fc] group-hover:text-[#58a6ff]">
-                            {tmpl.name}
-                          </span>
-                          <span className="text-[10px] px-1.5 py-0.2 rounded bg-[#21262d] text-[#8b949e]">
-                            {tmpl.category}
-                          </span>
+                          {step.uses ? (
+                            <input
+                              type="text"
+                              value={step.uses}
+                              onChange={(e) => updateStep(step.id, { uses: e.target.value })}
+                              placeholder="e.g. actions/upload-artifact@v4"
+                              className="w-full px-3 py-2 text-xs font-mono bg-[#0d1117]/60 border border-white/[0.09] rounded-xl text-[#79c0ff] focus:outline-none focus:border-[#58a6ff] focus:ring-1 focus:ring-[#58a6ff]/30 backdrop-blur-md transition-all"
+                            />
+                          ) : (
+                            <textarea
+                              value={step.run || ''}
+                              onChange={(e) => updateStep(step.id, { run: e.target.value })}
+                              placeholder="npm run test&#10;npm run build"
+                              rows={3}
+                              className="w-full px-3 py-2 text-xs font-mono bg-[#0d1117]/60 border border-white/[0.09] rounded-xl text-[#c9d1d9] focus:outline-none focus:border-[#58a6ff] focus:ring-1 focus:ring-[#58a6ff]/30 backdrop-blur-md transition-all"
+                            />
+                          )}
                         </div>
-                        <code className="text-[11px] text-[#8b949e] truncate block mt-0.5">
-                          {tmpl.uses || tmpl.run}
-                        </code>
+
+                        {/* Environment Variables Section */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <label className="text-[11px] font-semibold text-[#8b949e] flex items-center gap-1.5">
+                              <Key className="w-3.5 h-3.5 text-[#f0883e]" />
+                              Environment Variables (env:)
+                            </label>
+                            <button
+                              type="button"
+                              onClick={() => addEnvVar(step.id)}
+                              className="text-[10px] text-[#58a6ff] hover:underline flex items-center gap-0.5"
+                            >
+                              <Plus className="w-2.5 h-2.5" />
+                              Add Env Var
+                            </button>
+                          </div>
+
+                          {step.env.length > 0 && (
+                            <div className="space-y-2 bg-[#0d1117]/50 p-2.5 rounded-xl border border-white/[0.08] backdrop-blur-md">
+                              {step.env.map((env, envIdx) => (
+                                <div key={envIdx} className="flex items-center gap-2">
+                                  <input
+                                    type="text"
+                                    value={env.key}
+                                    onChange={(e) =>
+                                      updateEnvVar(step.id, envIdx, 'key', e.target.value)
+                                    }
+                                    placeholder="KEY"
+                                    className="w-1/3 px-2.5 py-1.5 text-xs font-mono bg-[#161b22]/70 border border-white/[0.08] rounded-lg text-[#f0f6fc] focus:outline-none focus:border-[#58a6ff]"
+                                  />
+                                  <span className="text-[#6e7681] text-xs">:</span>
+                                  <input
+                                    type="text"
+                                    value={env.value}
+                                    onChange={(e) =>
+                                      updateEnvVar(step.id, envIdx, 'value', e.target.value)
+                                    }
+                                    placeholder="value or ${{ secrets.TOKEN }}"
+                                    className="flex-1 px-2.5 py-1.5 text-xs font-mono bg-[#161b22]/70 border border-white/[0.08] rounded-lg text-[#79c0ff] focus:outline-none focus:border-[#58a6ff]"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => removeEnvVar(step.id, envIdx)}
+                                    className="text-[#8b949e] hover:text-[#f85149] p-1 rounded hover:bg-white/[0.05] transition-colors"
+                                  >
+                                    <X className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Advanced Options (Conditional if:, Working Directory) */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                          <div>
+                            <span className="text-[10px] text-[#8b949e] block mb-1">
+                              Conditional (if:)
+                            </span>
+                            <input
+                              type="text"
+                              value={step.ifCondition || ''}
+                              onChange={(e) => updateStep(step.id, { ifCondition: e.target.value })}
+                              placeholder="e.g. success() && github.ref == 'refs/heads/main'"
+                              className="w-full px-2.5 py-1.5 text-[11px] font-mono bg-[#0d1117]/60 border border-white/[0.08] rounded-lg text-[#c9d1d9] focus:outline-none focus:border-[#58a6ff]"
+                            />
+                          </div>
+
+                          <div>
+                            <span className="text-[10px] text-[#8b949e] block mb-1">
+                              Working Directory
+                            </span>
+                            <input
+                              type="text"
+                              value={step.workingDirectory || ''}
+                              onChange={(e) => updateStep(step.id, { workingDirectory: e.target.value })}
+                              placeholder="./backend"
+                              className="w-full px-2.5 py-1.5 text-[11px] font-mono bg-[#0d1117]/60 border border-white/[0.08] rounded-lg text-[#c9d1d9] focus:outline-none focus:border-[#58a6ff]"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
+      </div>
+
+      {/* Preset Library Modal via Portal */}
+      {mounted &&
+        createPortal(
+          <AnimatePresence>
+            {templateModalOpen && (
+              <>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                  className="fixed inset-0 bg-black/80 backdrop-blur-md z-[999] cursor-pointer"
+                  onClick={() => setTemplateModalOpen(false)}
+                />
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: '-46%', x: '-50%' }}
+                  animate={{ opacity: 1, scale: 1, y: '-50%', x: '-50%' }}
+                  exit={{ opacity: 0, scale: 0.95, y: '-46%', x: '-50%' }}
+                  transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                  className="fixed top-1/2 left-1/2 w-full max-w-xl bg-[#161b22]/90 border border-white/[0.12] rounded-2xl shadow-[0_25px_60px_rgba(0,0,0,0.85),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-2xl z-[1000] p-6 space-y-4 max-h-[85vh] overflow-y-auto"
+                >
+                  <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+                    <div className="flex items-center gap-2.5">
+                      <div className="p-2 rounded-xl bg-[#f0883e]/15 border border-[#f0883e]/30 shadow-inner">
+                        <Sparkles className="w-5 h-5 text-[#f0883e]" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-bold text-[#f0f6fc]">
+                          Step Preset Library
+                        </h3>
+                        <p className="text-[11px] text-[#8b949e]">Preconfigured industry-standard CI/CD tasks</p>
                       </div>
                     </div>
                     <button
                       type="button"
-                      onClick={() => {
-                        addStep(tmpl);
-                        setTemplateModalOpen(false);
-                        showToast({
-                          type: 'info',
-                          title: `Added Step: ${tmpl.name}`,
-                          description: tmpl.uses ? `Uses action: ${tmpl.uses}` : `Runs command: ${tmpl.run}`,
-                        });
-                      }}
-                      className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-[#21262d] hover:bg-[#238636] text-[#f0f6fc] hover:text-white transition-all shrink-0"
+                      onClick={() => setTemplateModalOpen(false)}
+                      className="p-1.5 rounded-lg hover:bg-white/[0.06] text-[#8b949e] hover:text-[#f0f6fc] transition-colors"
                     >
-                      + Insert
+                      <X className="w-4 h-4" />
                     </button>
                   </div>
-                ))}
-              </div>
-            </motion.div>
-          </>
+
+                  <div className="grid grid-cols-1 gap-2.5">
+                    {STEP_TEMPLATES.map((tmpl, idx) => (
+                      <div
+                        key={idx}
+                        className="p-3.5 rounded-xl bg-[#0d1117]/60 border border-white/[0.08] hover:border-[#58a6ff]/50 hover:bg-[#1f6feb]/10 transition-all flex items-center justify-between gap-3 group backdrop-blur-md"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="p-2 rounded-xl bg-[#161b22]/80 border border-white/[0.08] shadow-inner shrink-0">
+                            {getStepIcon(tmpl)}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-semibold text-[#f0f6fc] group-hover:text-[#58a6ff] transition-colors">
+                                {tmpl.name}
+                              </span>
+                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/[0.06] text-[#8b949e] border border-white/[0.06] font-medium">
+                                {tmpl.category}
+                              </span>
+                            </div>
+                            <code className="text-[11px] text-[#8b949e] truncate block mt-1 font-mono">
+                              {tmpl.uses || tmpl.run}
+                            </code>
+                          </div>
+                        </div>
+                        <motion.button
+                          type="button"
+                          whileHover={{ scale: 1.04 }}
+                          whileTap={{ scale: 0.96 }}
+                          onClick={() => {
+                            addStep(tmpl);
+                            setTemplateModalOpen(false);
+                            showToast({
+                              type: 'info',
+                              title: `Added Step: ${tmpl.name}`,
+                              description: tmpl.uses ? `Uses action: ${tmpl.uses}` : `Runs command: ${tmpl.run}`,
+                            });
+                          }}
+                          className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-[#238636] hover:bg-[#2ea043] text-white shadow-sm shadow-green-950/30 transition-all shrink-0"
+                        >
+                          + Insert
+                        </motion.button>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>,
+          document.body
         )}
-      </AnimatePresence>
     </div>
   );
 };
