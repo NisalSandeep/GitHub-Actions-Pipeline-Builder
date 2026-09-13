@@ -17,12 +17,18 @@ import {
   Minimize2,
   Search,
   X,
+  Code2,
 } from 'lucide-react';
 import { GitHubIcon } from '../icons/BrandIcons';
 import { CommitToGitHubModal } from './CommitToGitHubModal';
 
-export const YamlPreview: React.FC = () => {
-  const { yaml, state } = useWorkflow();
+interface YamlPreviewProps {
+  onSwitchToEditor?: () => void;
+}
+
+export const YamlPreview: React.FC<YamlPreviewProps> = ({ onSwitchToEditor }) => {
+  const { yaml, activeYaml, isManualMode, state } = useWorkflow();
+  const displayYaml = activeYaml || yaml;
   const [copied, setCopied] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
   const [commitModalOpen, setCommitModalOpen] = useState(false);
@@ -60,24 +66,24 @@ export const YamlPreview: React.FC = () => {
   // Compute highlighted code line by line
   const highlightedLines = useMemo(() => {
     if (!mounted) {
-      return yaml.split('\n').map((l) => l || ' ');
+      return displayYaml.split('\n').map((l) => l || ' ');
     }
     try {
       const grammar = Prism.languages.yaml || Prism.languages.markup;
-      const highlighted = Prism.highlight(yaml, grammar, 'yaml');
+      const highlighted = Prism.highlight(displayYaml, grammar, 'yaml');
       return highlighted.split('\n');
     } catch (e) {
-      return yaml.split('\n');
+      return displayYaml.split('\n');
     }
-  }, [yaml, mounted]);
+  }, [displayYaml, mounted]);
 
-  const rawLines = useMemo(() => yaml.split('\n'), [yaml]);
+  const rawLines = useMemo(() => displayYaml.split('\n'), [displayYaml]);
 
   const { showToast } = useToast();
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(yaml);
+      await navigator.clipboard.writeText(displayYaml);
       setCopied(true);
       confetti({
         particleCount: 40,
@@ -107,7 +113,7 @@ export const YamlPreview: React.FC = () => {
         ? state.global.filename
         : `${state.global.filename || 'workflow'}.yml`;
 
-      const blob = new Blob([yaml], { type: 'text/yaml;charset=utf-8' });
+      const blob = new Blob([displayYaml], { type: 'text/yaml;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -162,6 +168,11 @@ export const YamlPreview: React.FC = () => {
             <span className="px-2 py-0.5 rounded-full bg-white/[0.04] text-[#8b949e] text-[10px] font-mono border border-white/[0.08] shrink-0">
               {rawLines.length} lines
             </span>
+            {isManualMode && (
+              <span className="px-2 py-0.5 rounded-full bg-[#f0883e]/20 text-[#ffa657] border border-[#f0883e]/40 text-[10px] font-semibold shrink-0">
+                Custom Code Active
+              </span>
+            )}
             {isFullscreen && (
               <span className="hidden sm:inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-[#388bfd]/15 text-[#79c0ff] border border-[#388bfd]/30">
                 Fullscreen Mode • Press <kbd className="font-mono px-1 rounded bg-[#0d1117] text-[#c9d1d9]">Esc</kbd> to exit
@@ -232,6 +243,22 @@ export const YamlPreview: React.FC = () => {
                 title="Expand Fullscreen (Esc to exit)"
               >
                 <Maximize2 className="w-3.5 h-3.5" />
+              </motion.button>
+            )}
+
+            {/* Edit Manually Button */}
+            {onSwitchToEditor && (
+              <motion.button
+                type="button"
+                whileHover={{ scale: 1.025, y: -1 }}
+                whileTap={{ scale: 0.96 }}
+                transition={{ type: 'spring', stiffness: 450, damping: 25 }}
+                onClick={onSwitchToEditor}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#388bfd]/15 hover:bg-[#388bfd]/25 border border-[#388bfd]/40 text-[#79c0ff] backdrop-blur-md transition-all shadow-sm"
+                title="Open interactive Manual YAML Editor with autocomplete and validator"
+              >
+                <Code2 className="w-3.5 h-3.5 text-[#58a6ff]" />
+                <span className="hidden sm:inline">Edit Manually</span>
               </motion.button>
             )}
 
@@ -341,7 +368,7 @@ export const YamlPreview: React.FC = () => {
     <CommitToGitHubModal
       isOpen={commitModalOpen}
       onClose={() => setCommitModalOpen(false)}
-      yaml={yaml}
+      yaml={displayYaml}
       defaultFilename={state.global.filename}
     />
     </>

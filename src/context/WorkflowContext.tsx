@@ -25,10 +25,18 @@ import {
 } from '../types/workflow';
 import { DEFAULT_WORKFLOW_STATE, WORKFLOW_PRESETS } from '../utils/presets';
 import { generateYaml, getRequiredSecrets } from '../utils/yamlGenerator';
+import { validateWorkflowYaml, ValidationResult } from '../utils/yamlValidator';
 
 interface WorkflowContextType {
   state: WorkflowState;
   yaml: string;
+  manualYaml: string;
+  setManualYaml: (yaml: string) => void;
+  isManualMode: boolean;
+  setIsManualMode: (manual: boolean) => void;
+  activeYaml: string;
+  validationResult: ValidationResult;
+  syncVisualToManual: () => void;
   requiredSecrets: RequiredSecret[];
   updateGlobal: (partial: Partial<GlobalConfig>) => void;
   updateTriggerPush: (partial: Partial<GlobalConfig['triggers']['push']>) => void;
@@ -65,9 +73,42 @@ const WorkflowContext = createContext<WorkflowContextType | undefined>(undefined
 
 export const WorkflowProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, setState] = useState<WorkflowState>(DEFAULT_WORKFLOW_STATE);
+  const [manualYaml, setManualYaml] = useState<string>('');
+  const [isManualMode, setIsManualMode] = useState<boolean>(false);
 
-  const yaml = useMemo(() => generateYaml(state), [state]);
-  const requiredSecrets = useMemo(() => getRequiredSecrets(state), [state]);
+  const visualYaml = useMemo(() => generateYaml(state), [state]);
+  const activeYaml = isManualMode ? (manualYaml || visualYaml) : visualYaml;
+
+  const validationResult = useMemo(() => {
+    return validateWorkflowYaml(activeYaml);
+  }, [activeYaml]);
+
+  const syncVisualToManual = useCallback(() => {
+    setManualYaml(visualYaml);
+  }, [visualYaml]);
+
+  const visualRequiredSecrets = useMemo(() => getRequiredSecrets(state), [state]);
+
+  const requiredSecrets = useMemo(() => {
+    if (!isManualMode) {
+      return visualRequiredSecrets;
+    }
+    const combined = [...visualRequiredSecrets];
+    const existingNames = new Set(combined.map((s) => s.name));
+
+    validationResult.stats.secrets.forEach((secName) => {
+      if (!existingNames.has(secName)) {
+        combined.push({
+          name: secName,
+          target: 'General',
+          description: `Referenced in manual GitHub Actions code (\${{ secrets.${secName} }})`,
+        });
+        existingNames.add(secName);
+      }
+    });
+
+    return combined;
+  }, [isManualMode, visualRequiredSecrets, validationResult.stats.secrets]);
 
   const updateGlobal = useCallback((partial: Partial<GlobalConfig>) => {
     setState((prev) => ({
@@ -427,7 +468,14 @@ export const WorkflowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     <WorkflowContext.Provider
       value={{
         state,
-        yaml,
+        yaml: visualYaml,
+        manualYaml,
+        setManualYaml,
+        isManualMode,
+        setIsManualMode,
+        activeYaml,
+        validationResult,
+        syncVisualToManual,
         requiredSecrets,
         updateGlobal,
         updateTriggerPush,

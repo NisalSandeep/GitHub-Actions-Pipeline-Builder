@@ -8,6 +8,7 @@ import { LanguageSection } from './LanguageSection';
 import { CacheSection } from './CacheSection';
 import { StepsBuilderSection } from './StepsBuilderSection';
 import { DeploymentSection } from './DeploymentSection';
+import { ManualYamlSection } from './ManualYamlSection';
 import {
   Globe,
   HardDrive,
@@ -20,6 +21,7 @@ import {
   Sliders,
   Eye,
   Layers,
+  Code2,
 } from 'lucide-react';
 import {
   NodeIcon,
@@ -42,7 +44,7 @@ import {
   BeakerIcon,
 } from '../icons/BrandIcons';
 
-type SectionKey = 'global' | 'language' | 'cache' | 'steps' | 'deployment';
+type SectionKey = 'global' | 'language' | 'cache' | 'steps' | 'deployment' | 'manual';
 
 interface SectionMeta {
   id: SectionKey;
@@ -181,6 +183,14 @@ export const BuilderPanel: React.FC = () => {
       subtitle: 'Docker Hub, AWS (ECS/S3/Lambda), Vercel, and GitHub Pages',
       icon: getDeploymentHeaderIcon(),
     },
+    {
+      id: 'manual',
+      stepNum: 6,
+      shortTitle: 'Manual YAML',
+      title: '6. Manual YAML Code & Validator',
+      subtitle: 'Directly edit workflow code with inline suggestions and real-time schema validation',
+      icon: <Code2 className="w-4 h-4 text-[#58a6ff]" />,
+    },
   ];
 
   const getSectionBadge = (id: SectionKey) => {
@@ -230,6 +240,13 @@ export const BuilderPanel: React.FC = () => {
             <span>{state.deployment.enabled ? state.deployment.target.toUpperCase() : 'CI Only'}</span>
           </span>
         );
+      case 'manual':
+        return (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#388bfd]/20 text-[#79c0ff] text-[11px] font-semibold border border-[#388bfd]/40">
+            <Code2 className="w-3 h-3 text-[#58a6ff]" />
+            <span>Code Editor</span>
+          </span>
+        );
     }
   };
 
@@ -245,6 +262,8 @@ export const BuilderPanel: React.FC = () => {
         return <StepsBuilderSection />;
       case 'deployment':
         return <DeploymentSection />;
+      case 'manual':
+        return <ManualYamlSection />;
     }
   };
 
@@ -269,7 +288,7 @@ export const BuilderPanel: React.FC = () => {
             Visual Architect
           </span>
           <span className="text-[11px] text-[#58a6ff] font-medium bg-[#388bfd]/10 px-2 py-0.5 rounded-full border border-[#388bfd]/25">
-            Step {currentIndex + 1} of 5
+            Step {currentIndex + 1} of 6
           </span>
         </div>
 
@@ -304,8 +323,8 @@ export const BuilderPanel: React.FC = () => {
         </div>
       </div>
 
-      {/* Stepper Navigation Bar (5 Sections) */}
-      <div className="p-1.5 rounded-2xl bg-[#161b22]/70 border border-white/[0.08] backdrop-blur-xl shadow-lg grid grid-cols-5 gap-1.5 select-none">
+      {/* Stepper Navigation Bar (6 Sections) */}
+      <div className="p-1.5 rounded-2xl bg-[#161b22]/70 border border-white/[0.08] backdrop-blur-xl shadow-lg grid grid-cols-3 sm:grid-cols-6 gap-1.5 select-none">
         {sections.map((sec) => {
           const isActive = activeSection === sec.id;
           return (
