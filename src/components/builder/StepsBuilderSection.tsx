@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useWorkflow } from '../../context/WorkflowContext';
 import { useToast } from '../../context/ToastContext';
 import { STEP_TEMPLATES } from '../../utils/presets';
@@ -165,133 +166,147 @@ export const StepsBuilderSection: React.FC = () => {
 
       {/* Steps List */}
       <div className="space-y-3">
-        {state.steps.map((step, index) => {
-          const isExpanded = expandedSteps[step.id] !== false; // default open
-          const isDragging = draggedIndex === index;
+        <AnimatePresence initial={false}>
+          {state.steps.map((step, index) => {
+            const isExpanded = expandedSteps[step.id] !== false; // default open
+            const isDragging = draggedIndex === index;
 
-          return (
-            <div
-              key={step.id}
-              onDragOver={handleDragOver}
-              onDrop={(e) => handleDrop(e, index)}
-              className={`rounded-xl border transition-all ${
-                isDragging
-                  ? 'opacity-40 border-dashed border-[#58a6ff]'
-                  : 'bg-[#161b22] border-[#30363d] hover:border-[#484f58]'
-              }`}
-            >
-              {/* Step Card Header */}
-              <div className="flex items-center justify-between p-3 gap-2 select-none">
-                <div className="flex items-center gap-2 flex-1 min-w-0">
-                  {/* Drag Handle */}
-                  <div
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, index)}
-                    className="cursor-grab active:cursor-grabbing text-[#6e7681] hover:text-[#58a6ff] p-1 rounded hover:bg-[#21262d] transition-colors"
-                    title="Drag handle to reorder this step"
-                  >
-                    <GripVertical className="w-4 h-4" />
-                  </div>
-
-                  {/* Step Index Badge & Icon */}
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <span className="w-5 h-5 flex items-center justify-center rounded-full bg-[#21262d] text-[10px] font-mono font-bold text-[#8b949e]">
-                      {index + 1}
-                    </span>
-                    <div className="p-1 rounded-md bg-[#0d1117] border border-[#30363d]">
-                      {getStepIcon(step)}
+            return (
+              <motion.div
+                layout
+                initial={{ opacity: 0, y: 15, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.16 } }}
+                transition={{ duration: 0.2 }}
+                key={step.id}
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, index)}
+                className={`rounded-xl border transition-all ${
+                  isDragging
+                    ? 'opacity-40 border-dashed border-[#58a6ff]'
+                    : 'bg-[#161b22] border-[#30363d] hover:border-[#484f58]'
+                }`}
+              >
+                {/* Step Card Header */}
+                <div className="flex items-center justify-between p-3 gap-2 select-none">
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    {/* Drag Handle */}
+                    <div
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, index)}
+                      className="cursor-grab active:cursor-grabbing text-[#6e7681] hover:text-[#58a6ff] p-1 rounded hover:bg-[#21262d] transition-colors"
+                      title="Drag handle to reorder this step"
+                    >
+                      <GripVertical className="w-4 h-4" />
                     </div>
+
+                    {/* Step Index Badge & Icon */}
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span className="w-5 h-5 flex items-center justify-center rounded-full bg-[#21262d] text-[10px] font-mono font-bold text-[#8b949e]">
+                        {index + 1}
+                      </span>
+                      <div className="p-1 rounded-md bg-[#0d1117] border border-[#30363d]">
+                        {getStepIcon(step)}
+                      </div>
+                    </div>
+
+                    {/* Step Name (inline editable or title) */}
+                    <button
+                      type="button"
+                      onClick={() => toggleExpand(step.id)}
+                      className="flex items-center gap-1.5 text-left flex-1 min-w-0 font-medium text-xs text-[#f0f6fc] hover:text-[#58a6ff]"
+                    >
+                      <span className="truncate">{step.name || 'Unnamed Step'}</span>
+                      {step.uses && (
+                        <span className="px-1.5 py-0.2 rounded bg-[#388bfd1a] text-[#58a6ff] text-[10px] font-mono truncate hidden sm:inline">
+                          {step.uses.split('@')[0]}
+                        </span>
+                      )}
+                    </button>
                   </div>
 
-                  {/* Step Name (inline editable or title) */}
-                  <button
-                    type="button"
-                    onClick={() => toggleExpand(step.id)}
-                    className="flex items-center gap-1.5 text-left flex-1 min-w-0 font-medium text-xs text-[#f0f6fc] hover:text-[#58a6ff]"
-                  >
-                    <span className="truncate">{step.name || 'Unnamed Step'}</span>
-                    {step.uses && (
-                      <span className="px-1.5 py-0.2 rounded bg-[#388bfd1a] text-[#58a6ff] text-[10px] font-mono truncate hidden sm:inline">
-                        {step.uses.split('@')[0]}
-                      </span>
-                    )}
-                  </button>
-                </div>
-
-                {/* Step Actions */}
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() => moveStep(index, 'up')}
-                    disabled={index === 0}
-                    className="p-1 rounded text-[#8b949e] hover:text-[#f0f6fc] hover:bg-[#21262d] disabled:opacity-30 disabled:hover:bg-transparent"
-                    title="Move up"
-                  >
-                    <ChevronUp className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => moveStep(index, 'down')}
-                    disabled={index === state.steps.length - 1}
-                    className="p-1 rounded text-[#8b949e] hover:text-[#f0f6fc] hover:bg-[#21262d] disabled:opacity-30 disabled:hover:bg-transparent"
-                    title="Move down"
-                  >
-                    <ChevronDown className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      duplicateStep(step.id);
-                      showToast({
-                        type: 'info',
-                        title: 'Step Duplicated',
-                        description: `Created clone of "${step.name || 'Step'}"`,
-                      });
-                    }}
-                    className="p-1 rounded text-[#8b949e] hover:text-[#58a6ff] hover:bg-[#21262d]"
-                    title="Duplicate step"
-                  >
-                    <Copy className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      removeStep(step.id);
-                      showToast({
-                        type: 'warning',
-                        title: 'Step Removed',
-                        description: `Deleted "${step.name || 'Step'}" from pipeline`,
-                      });
-                    }}
-                    className="p-1 rounded text-[#8b949e] hover:text-[#f85149] hover:bg-[#21262d]"
-                    title="Delete step"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => toggleExpand(step.id)}
-                    className="p-1 rounded text-[#8b949e] hover:text-[#f0f6fc] hover:bg-[#21262d]"
-                  >
-                    {isExpanded ? (
+                  {/* Step Actions */}
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => moveStep(index, 'up')}
+                      disabled={index === 0}
+                      className="p-1 rounded text-[#8b949e] hover:text-[#f0f6fc] hover:bg-[#21262d] disabled:opacity-30 disabled:hover:bg-transparent"
+                      title="Move up"
+                    >
                       <ChevronUp className="w-3.5 h-3.5" />
-                    ) : (
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    )}
-                  </button>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => moveStep(index, 'down')}
+                      disabled={index === state.steps.length - 1}
+                      className="p-1 rounded text-[#8b949e] hover:text-[#f0f6fc] hover:bg-[#21262d] disabled:opacity-30 disabled:hover:bg-transparent"
+                      title="Move down"
+                    >
+                      <ChevronDown className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        duplicateStep(step.id);
+                        showToast({
+                          type: 'info',
+                          title: 'Step Duplicated',
+                          description: `Created clone of "${step.name || 'Step'}"`,
+                        });
+                      }}
+                      className="p-1 rounded text-[#8b949e] hover:text-[#58a6ff] hover:bg-[#21262d]"
+                      title="Duplicate step"
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        removeStep(step.id);
+                        showToast({
+                          type: 'warning',
+                          title: 'Step Removed',
+                          description: `Deleted "${step.name || 'Step'}" from pipeline`,
+                        });
+                      }}
+                      className="p-1 rounded text-[#8b949e] hover:text-[#f85149] hover:bg-[#21262d]"
+                      title="Delete step"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => toggleExpand(step.id)}
+                      className="p-1 rounded text-[#8b949e] hover:text-[#f0f6fc] hover:bg-[#21262d]"
+                    >
+                      {isExpanded ? (
+                        <ChevronUp className="w-3.5 h-3.5" />
+                      ) : (
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      )}
+                    </button>
+                  </div>
                 </div>
-              </div>
 
-              {/* Step Expanded Details */}
-              {isExpanded && (
-                <div className="p-3.5 pt-0 border-t border-[#21262d] space-y-3 mt-1 animate-fade-in">
-                  {/* Step Name Input */}
-                  <div>
-                    <label className="block text-[11px] font-semibold text-[#8b949e] mb-1">
-                      Step Name
-                    </label>
-                    <input
-                      type="text"
+                {/* Step Expanded Details */}
+                <AnimatePresence initial={false}>
+                  {isExpanded && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                      className="overflow-hidden"
+                    >
+                      <div className="p-3.5 pt-0 border-t border-[#21262d] space-y-3 mt-1">
+                        {/* Step Name Input */}
+                        <div>
+                          <label className="block text-[11px] font-semibold text-[#8b949e] mb-1">
+                            Step Name
+                          </label>
+                          <input
+                            type="text"
                       value={step.name}
                       onChange={(e) => updateStep(step.id, { name: e.target.value })}
                       placeholder="e.g. Run Unit Tests"
@@ -421,81 +436,96 @@ export const StepsBuilderSection: React.FC = () => {
                     </div>
                   </div>
                 </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      );
+    })}
+  </AnimatePresence>
+</div>
 
       {/* Preset Library Modal */}
-      {templateModalOpen && (
-        <>
-          <div
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
-            onClick={() => setTemplateModalOpen(false)}
-          />
-          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-xl bg-[#161b22] border border-[#30363d] rounded-2xl shadow-2xl z-50 p-5 space-y-4 max-h-[85vh] overflow-y-auto animate-fade-in">
-            <div className="flex items-center justify-between pb-3 border-b border-[#30363d]">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-[#f0883e]" />
-                <h3 className="text-sm font-bold text-[#f0f6fc]">
-                  Step Preset Library
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setTemplateModalOpen(false)}
-                className="p-1 rounded-lg hover:bg-[#21262d] text-[#8b949e] hover:text-[#f0f6fc]"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 gap-2.5">
-              {STEP_TEMPLATES.map((tmpl, idx) => (
-                <div
-                  key={idx}
-                  className="p-3 rounded-xl bg-[#0d1117] border border-[#30363d] hover:border-[#58a6ff] transition-all flex items-center justify-between gap-3 group"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="p-2 rounded-lg bg-[#161b22] border border-[#30363d] shrink-0">
-                      {getStepIcon(tmpl)}
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-semibold text-[#f0f6fc] group-hover:text-[#58a6ff]">
-                          {tmpl.name}
-                        </span>
-                        <span className="text-[10px] px-1.5 py-0.2 rounded bg-[#21262d] text-[#8b949e]">
-                          {tmpl.category}
-                        </span>
-                      </div>
-                      <code className="text-[11px] text-[#8b949e] truncate block mt-0.5">
-                        {tmpl.uses || tmpl.run}
-                      </code>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      addStep(tmpl);
-                      setTemplateModalOpen(false);
-                      showToast({
-                        type: 'info',
-                        title: `Added Step: ${tmpl.name}`,
-                        description: tmpl.uses ? `Uses action: ${tmpl.uses}` : `Runs command: ${tmpl.run}`,
-                      });
-                    }}
-                    className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-[#21262d] hover:bg-[#238636] text-[#f0f6fc] hover:text-white transition-all shrink-0"
-                  >
-                    + Insert
-                  </button>
+      <AnimatePresence>
+        {templateModalOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
+              onClick={() => setTemplateModalOpen(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: '-46%', x: '-50%' }}
+              animate={{ opacity: 1, scale: 1, y: '-50%', x: '-50%' }}
+              exit={{ opacity: 0, scale: 0.95, y: '-46%', x: '-50%' }}
+              transition={{ duration: 0.18, ease: 'easeOut' }}
+              className="fixed top-1/2 left-1/2 w-full max-w-xl bg-[#161b22] border border-[#30363d] rounded-2xl shadow-2xl z-50 p-5 space-y-4 max-h-[85vh] overflow-y-auto"
+            >
+              <div className="flex items-center justify-between pb-3 border-b border-[#30363d]">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-[#f0883e]" />
+                  <h3 className="text-sm font-bold text-[#f0f6fc]">
+                    Step Preset Library
+                  </h3>
                 </div>
-              ))}
-            </div>
-          </div>
-        </>
-      )}
+                <button
+                  type="button"
+                  onClick={() => setTemplateModalOpen(false)}
+                  className="p-1 rounded-lg hover:bg-[#21262d] text-[#8b949e] hover:text-[#f0f6fc]"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 gap-2.5">
+                {STEP_TEMPLATES.map((tmpl, idx) => (
+                  <div
+                    key={idx}
+                    className="p-3 rounded-xl bg-[#0d1117] border border-[#30363d] hover:border-[#58a6ff] transition-all flex items-center justify-between gap-3 group"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="p-2 rounded-lg bg-[#161b22] border border-[#30363d] shrink-0">
+                        {getStepIcon(tmpl)}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-semibold text-[#f0f6fc] group-hover:text-[#58a6ff]">
+                            {tmpl.name}
+                          </span>
+                          <span className="text-[10px] px-1.5 py-0.2 rounded bg-[#21262d] text-[#8b949e]">
+                            {tmpl.category}
+                          </span>
+                        </div>
+                        <code className="text-[11px] text-[#8b949e] truncate block mt-0.5">
+                          {tmpl.uses || tmpl.run}
+                        </code>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        addStep(tmpl);
+                        setTemplateModalOpen(false);
+                        showToast({
+                          type: 'info',
+                          title: `Added Step: ${tmpl.name}`,
+                          description: tmpl.uses ? `Uses action: ${tmpl.uses}` : `Runs command: ${tmpl.run}`,
+                        });
+                      }}
+                      className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-[#21262d] hover:bg-[#238636] text-[#f0f6fc] hover:text-white transition-all shrink-0"
+                    >
+                      + Insert
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

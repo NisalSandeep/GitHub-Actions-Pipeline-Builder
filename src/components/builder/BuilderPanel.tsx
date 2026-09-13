@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useWorkflow } from '../../context/WorkflowContext';
 import { GlobalSettingsSection } from './GlobalSettingsSection';
 import { LanguageSection } from './LanguageSection';
@@ -13,7 +14,6 @@ import {
   Terminal,
   Rocket,
   ChevronDown,
-  ChevronUp,
 } from 'lucide-react';
 import {
   NodeIcon,
@@ -90,11 +90,21 @@ const AccordionSection: React.FC<AccordionSectionProps> = ({
         </div>
       </button>
 
-      {isOpen && (
-        <div className="p-4 pt-3 border-t border-[#30363d]/60 bg-[#161b22]/40 animate-fade-in">
-          {children}
-        </div>
-      )}
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+            className="overflow-hidden"
+          >
+            <div className="p-4 pt-3 border-t border-[#30363d]/60 bg-[#161b22]/40">
+              {children}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

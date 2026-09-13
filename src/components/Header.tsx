@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useWorkflow } from '../context/WorkflowContext';
 import { useToast } from '../context/ToastContext';
 import { WORKFLOW_PRESETS } from '../utils/presets';
@@ -152,53 +153,61 @@ export const Header: React.FC = () => {
               <ChevronDown className="w-3.5 h-3.5 text-[#8b949e]" />
             </button>
 
-            {presetDropdownOpen && (
-              <>
-                <div
-                  className="fixed inset-0 z-40"
-                  onClick={() => setPresetDropdownOpen(false)}
-                />
-                <div className="absolute right-0 mt-2 w-80 rounded-xl bg-[#1f242c] border border-[#30363d] shadow-2xl p-2 z-50 animate-fade-in">
-                  <div className="px-3 py-2 text-[11px] font-semibold text-[#8b949e] uppercase tracking-wider border-b border-[#30363d]/50">
-                    Production Starter Templates
-                  </div>
-                  <div className="py-1 space-y-1 max-h-84 overflow-y-auto">
-                    {WORKFLOW_PRESETS.map((preset) => (
-                      <button
-                        key={preset.id}
-                        onClick={() => {
-                          loadPreset(preset.id);
-                          setPresetDropdownOpen(false);
-                          showToast({
-                            type: 'info',
-                            title: `Loaded Template: ${preset.name}`,
-                            description: preset.description,
-                          });
-                        }}
-                        className="w-full text-left p-2.5 rounded-lg hover:bg-[#21262d] border border-transparent hover:border-[#30363d] transition-colors group flex items-start gap-2.5"
-                      >
-                        <div className="p-1 rounded bg-[#0d1117] border border-[#30363d] mt-0.5">
-                          {getPresetIcon(preset.id)}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-semibold text-[#f0f6fc] group-hover:text-[#58a6ff]">
-                              {preset.name}
-                            </span>
-                            <span className="text-[9px] px-1.5 py-0.2 rounded bg-[#30363d] text-[#8b949e]">
-                              {preset.badge}
-                            </span>
+            <AnimatePresence>
+              {presetDropdownOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setPresetDropdownOpen(false)}
+                  />
+                  <motion.div
+                    initial={{ opacity: 0, y: -6, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -6, scale: 0.96 }}
+                    transition={{ duration: 0.14, ease: 'easeOut' }}
+                    className="absolute right-0 mt-2 w-80 rounded-xl bg-[#1f242c] border border-[#30363d] shadow-2xl p-2 z-50"
+                  >
+                    <div className="px-3 py-2 text-[11px] font-semibold text-[#8b949e] uppercase tracking-wider border-b border-[#30363d]/50">
+                      Production Starter Templates
+                    </div>
+                    <div className="py-1 space-y-1 max-h-84 overflow-y-auto">
+                      {WORKFLOW_PRESETS.map((preset) => (
+                        <button
+                          key={preset.id}
+                          onClick={() => {
+                            loadPreset(preset.id);
+                            setPresetDropdownOpen(false);
+                            showToast({
+                              type: 'info',
+                              title: `Loaded Template: ${preset.name}`,
+                              description: preset.description,
+                            });
+                          }}
+                          className="w-full text-left p-2.5 rounded-lg hover:bg-[#21262d] border border-transparent hover:border-[#30363d] transition-colors group flex items-start gap-2.5"
+                        >
+                          <div className="p-1 rounded bg-[#0d1117] border border-[#30363d] mt-0.5">
+                            {getPresetIcon(preset.id)}
                           </div>
-                          <p className="text-[11px] text-[#8b949e] line-clamp-2 mt-0.5">
-                            {preset.description}
-                          </p>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs font-semibold text-[#f0f6fc] group-hover:text-[#58a6ff]">
+                                {preset.name}
+                              </span>
+                              <span className="text-[9px] px-1.5 py-0.2 rounded bg-[#30363d] text-[#8b949e]">
+                                {preset.badge}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-[#8b949e] line-clamp-2 mt-0.5">
+                              {preset.description}
+                            </p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Reset Button */}
