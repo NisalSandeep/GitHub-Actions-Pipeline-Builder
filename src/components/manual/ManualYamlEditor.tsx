@@ -60,7 +60,7 @@ export const ManualYamlEditor: React.FC<ManualYamlEditorProps> = ({
   const [downloadSuccess, setDownloadSuccess] = useState(false);
   const [commitModalOpen, setCommitModalOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [showDiagnostics, setShowDiagnostics] = useState(true);
+  const [showDiagnostics, setShowDiagnostics] = useState(false);
 
   // Textarea and cursor tracking
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -357,34 +357,35 @@ export const ManualYamlEditor: React.FC<ManualYamlEditorProps> = ({
         }`}
       >
         {/* Top Header & Action Controls */}
-        <div className="flex flex-wrap items-center justify-between px-4 py-2.5 border-b border-white/[0.08] bg-[#161b22]/75 backdrop-blur-xl gap-2 shrink-0">
+        {/* Top Header & Action Controls (Sticky so buttons are always visible) */}
+        <div className="sticky top-0 z-20 flex flex-wrap items-center justify-between px-4 py-2.5 border-b border-white/[0.08] bg-[#161b22]/95 backdrop-blur-2xl shadow-md gap-2 shrink-0">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="p-1.5 rounded-lg bg-[#58a6ff]/10 border border-[#58a6ff]/30 text-[#58a6ff]">
+            <div className="p-1.5 rounded-lg bg-[#58a6ff]/10 border border-[#58a6ff]/30 text-[#58a6ff] shrink-0">
               <FileCode className="w-4 h-4" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-mono text-xs font-semibold text-[#f0f6fc]">
+                <span className="font-mono text-xs font-semibold text-[#f0f6fc] truncate">
                   .github/workflows/{state.global.filename || 'main.yml'}
                 </span>
                 {isManualMode ? (
-                  <span className="px-2 py-0.5 rounded-full bg-[#f0883e]/20 text-[#ffa657] border border-[#f0883e]/40 text-[10px] font-semibold">
+                  <span className="px-2 py-0.5 rounded-full bg-[#f0883e]/20 text-[#ffa657] border border-[#f0883e]/40 text-[10px] font-semibold whitespace-nowrap shrink-0">
                     Manual Mode Active
                   </span>
                 ) : (
-                  <span className="px-2 py-0.5 rounded-full bg-[#238636]/20 text-[#3fb950] border border-[#238636]/40 text-[10px] font-semibold">
+                  <span className="px-2 py-0.5 rounded-full bg-[#238636]/20 text-[#3fb950] border border-[#238636]/40 text-[10px] font-semibold whitespace-nowrap shrink-0">
                     Synced with Visual Builder
                   </span>
                 )}
               </div>
-              <p className="text-[11px] text-[#8b949e]">
+              <p className="text-[11px] text-[#8b949e] truncate">
                 Type custom YAML with inline autocompletion (Tab/Enter) and instant validation
               </p>
             </div>
           </div>
 
           {/* Action Toolbar */}
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-1.5 flex-nowrap shrink-0 overflow-x-auto">
             {/* Sync from Visual Builder */}
             <motion.button
               type="button"
@@ -399,11 +400,11 @@ export const ManualYamlEditor: React.FC<ManualYamlEditorProps> = ({
                   description: 'Loaded latest visual pipeline configuration into code editor.',
                 });
               }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-[#94a3b8] hover:text-[#f0f6fc] text-xs font-semibold backdrop-blur-md transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-[#94a3b8] hover:text-[#f0f6fc] text-xs font-semibold backdrop-blur-md transition-all whitespace-nowrap shrink-0"
               title="Reset code to match Visual Builder configuration"
             >
               <RotateCcw className="w-3.5 h-3.5 text-[#58a6ff]" />
-              <span className="hidden sm:inline">Sync Visual</span>
+              <span className="whitespace-nowrap">Sync Visual</span>
             </motion.button>
 
             {/* Format YAML Button */}
@@ -412,11 +413,11 @@ export const ManualYamlEditor: React.FC<ManualYamlEditorProps> = ({
               whileHover={{ scale: 1.025 }}
               whileTap={{ scale: 0.975 }}
               onClick={handleFormatYaml}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-[#94a3b8] hover:text-[#f0f6fc] text-xs font-semibold backdrop-blur-md transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-[#94a3b8] hover:text-[#f0f6fc] text-xs font-semibold backdrop-blur-md transition-all whitespace-nowrap shrink-0"
               title="Clean and beautify YAML indentation"
             >
               <Wand2 className="w-3.5 h-3.5 text-[#d29922]" />
-              <span className="hidden sm:inline">Format</span>
+              <span className="whitespace-nowrap">Format</span>
             </motion.button>
 
             {/* Copy Button */}
@@ -425,14 +426,14 @@ export const ManualYamlEditor: React.FC<ManualYamlEditorProps> = ({
               whileHover={{ scale: 1.025 }}
               whileTap={{ scale: 0.975 }}
               onClick={handleCopy}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold border backdrop-blur-md transition-all ${
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold border backdrop-blur-md transition-all whitespace-nowrap shrink-0 ${
                 copied
                   ? 'bg-[#238636] border-[#2ea043] text-white shadow-md'
                   : 'bg-white/[0.04] hover:bg-white/[0.08] border-white/[0.09] text-[#f0f6fc]'
               }`}
             >
               {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5 text-[#58a6ff]" />}
-              <span>{copied ? 'Copied' : 'Copy'}</span>
+              <span className="whitespace-nowrap">{copied ? 'Copied' : 'Copy'}</span>
             </motion.button>
 
             {/* Download Button */}
@@ -441,11 +442,11 @@ export const ManualYamlEditor: React.FC<ManualYamlEditorProps> = ({
               whileHover={{ scale: 1.025 }}
               whileTap={{ scale: 0.975 }}
               onClick={handleDownload}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.09] text-[#f0f6fc] text-xs font-semibold backdrop-blur-md transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.09] text-[#f0f6fc] text-xs font-semibold backdrop-blur-md transition-all whitespace-nowrap shrink-0"
               title="Download .yml file"
             >
               <Download className="w-3.5 h-3.5 text-[#3fb950]" />
-              <span className="hidden md:inline">Download</span>
+              <span className="whitespace-nowrap">Download</span>
             </motion.button>
 
             {/* Commit to GitHub Button */}
@@ -454,11 +455,11 @@ export const ManualYamlEditor: React.FC<ManualYamlEditorProps> = ({
               whileHover={{ scale: 1.025 }}
               whileTap={{ scale: 0.975 }}
               onClick={() => setCommitModalOpen(true)}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-[#238636] hover:bg-[#2ea043] border border-white/10 text-white shadow-md shadow-green-950/40 backdrop-blur-md transition-all"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-[#238636] hover:bg-[#2ea043] border border-white/10 text-white shadow-md shadow-green-950/40 backdrop-blur-md transition-all whitespace-nowrap shrink-0"
               title="Directly commit manual workflow to your GitHub repository"
             >
               <GitHubIcon className="w-3.5 h-3.5 text-white" />
-              <span>Commit</span>
+              <span className="whitespace-nowrap">Commit</span>
             </motion.button>
 
             {/* Fullscreen Toggle */}
@@ -467,7 +468,7 @@ export const ManualYamlEditor: React.FC<ManualYamlEditorProps> = ({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsFullscreen(!isFullscreen)}
-              className="p-1.5 rounded-xl bg-white/[0.03] border border-white/[0.08] text-[#8b949e] hover:text-[#f0f6fc] backdrop-blur-md"
+              className="p-1.5 rounded-xl bg-white/[0.03] border border-white/[0.08] text-[#8b949e] hover:text-[#f0f6fc] backdrop-blur-md shrink-0"
               title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen Editor'}
             >
               {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}

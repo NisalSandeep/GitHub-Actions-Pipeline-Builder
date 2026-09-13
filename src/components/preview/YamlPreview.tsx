@@ -180,16 +180,16 @@ export const YamlPreview: React.FC<YamlPreviewProps> = ({ onSwitchToEditor }) =>
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 flex-nowrap shrink-0">
             {/* Quick Search */}
-            <div className="relative hidden sm:block">
+            <div className="relative hidden md:block shrink-0">
               <Search className="w-3 h-3 text-[#6e7681] absolute left-2.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Filter YAML..."
-                className="pl-7 pr-6 py-1.5 text-xs bg-[#0d1117]/60 border border-white/[0.09] rounded-xl text-[#f0f6fc] placeholder-[#6e7681] focus:outline-none focus:border-[#58a6ff] focus:bg-[#0d1117]/90 w-32 focus:w-48 transition-all backdrop-blur-md"
+                className="pl-7 pr-6 py-1.5 text-xs bg-[#0d1117]/60 border border-white/[0.09] rounded-xl text-[#f0f6fc] placeholder-[#6e7681] focus:outline-none focus:border-[#58a6ff] focus:bg-[#0d1117]/90 w-24 focus:w-36 transition-all backdrop-blur-md"
               />
               {searchQuery && (
                 <button
@@ -207,7 +207,7 @@ export const YamlPreview: React.FC<YamlPreviewProps> = ({ onSwitchToEditor }) =>
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setWrapLines(!wrapLines)}
-              className={`p-2 rounded-xl border text-xs font-medium transition-all backdrop-blur-md ${
+              className={`p-2 rounded-xl border text-xs font-medium transition-all backdrop-blur-md shrink-0 ${
                 wrapLines
                   ? 'bg-[#388bfd]/20 border-[#388bfd] text-[#58a6ff] shadow-sm'
                   : 'bg-white/[0.03] border-white/[0.08] text-[#8b949e] hover:text-[#f0f6fc] hover:bg-white/[0.06]'
@@ -224,11 +224,11 @@ export const YamlPreview: React.FC<YamlPreviewProps> = ({ onSwitchToEditor }) =>
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.96 }}
                 onClick={() => setIsFullscreen(false)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-[#b62324]/20 hover:border-[#f85149]/60 hover:text-[#f85149] border border-white/[0.09] text-xs font-semibold text-[#f0f6fc] transition-all shadow-sm group backdrop-blur-md"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-[#b62324]/20 hover:border-[#f85149]/60 hover:text-[#f85149] border border-white/[0.09] text-xs font-semibold text-[#f0f6fc] transition-all shadow-sm group backdrop-blur-md whitespace-nowrap shrink-0"
                 title="Exit Fullscreen (Esc)"
               >
                 <Minimize2 className="w-3.5 h-3.5" />
-                <span>Exit Fullscreen</span>
+                <span className="whitespace-nowrap">Exit Fullscreen</span>
                 <kbd className="text-[10px] px-1.5 py-0.2 rounded bg-[#0d1117] border border-white/[0.08] font-mono text-[#8b949e] group-hover:text-[#f85149]">
                   Esc
                 </kbd>
@@ -239,7 +239,7 @@ export const YamlPreview: React.FC<YamlPreviewProps> = ({ onSwitchToEditor }) =>
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsFullscreen(true)}
-                className="p-2 rounded-xl bg-white/[0.03] border border-white/[0.08] text-[#8b949e] hover:text-[#f0f6fc] hover:border-[#58a6ff]/50 transition-all backdrop-blur-md"
+                className="p-2 rounded-xl bg-white/[0.03] border border-white/[0.08] text-[#8b949e] hover:text-[#f0f6fc] hover:border-[#58a6ff]/50 transition-all backdrop-blur-md shrink-0"
                 title="Expand Fullscreen (Esc to exit)"
               >
                 <Maximize2 className="w-3.5 h-3.5" />
@@ -254,11 +254,11 @@ export const YamlPreview: React.FC<YamlPreviewProps> = ({ onSwitchToEditor }) =>
                 whileTap={{ scale: 0.96 }}
                 transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                 onClick={onSwitchToEditor}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#388bfd]/15 hover:bg-[#388bfd]/25 border border-[#388bfd]/40 text-[#79c0ff] backdrop-blur-md transition-all shadow-sm"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#388bfd]/15 hover:bg-[#388bfd]/25 border border-[#388bfd]/40 text-[#79c0ff] backdrop-blur-md transition-all shadow-sm whitespace-nowrap shrink-0"
                 title="Open interactive Manual YAML Editor with autocomplete and validator"
               >
                 <Code2 className="w-3.5 h-3.5 text-[#58a6ff]" />
-                <span className="hidden sm:inline">Edit Manually</span>
+                <span className="whitespace-nowrap">Edit Manually</span>
               </motion.button>
             )}
 
@@ -269,7 +269,7 @@ export const YamlPreview: React.FC<YamlPreviewProps> = ({ onSwitchToEditor }) =>
               whileTap={{ scale: 0.96 }}
               transition={{ type: 'spring', stiffness: 450, damping: 25 }}
               onClick={handleCopy}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold border backdrop-blur-md transition-all duration-200 ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border backdrop-blur-md transition-all duration-200 whitespace-nowrap shrink-0 ${
                 copied
                   ? 'bg-[#238636] border-[#2ea043] text-white shadow-lg shadow-green-500/20 ring-2 ring-[#2ea043]/30'
                   : 'bg-white/[0.04] hover:bg-white/[0.08] border-white/[0.09] hover:border-white/[0.2] text-[#f0f6fc] shadow-sm'
@@ -278,12 +278,12 @@ export const YamlPreview: React.FC<YamlPreviewProps> = ({ onSwitchToEditor }) =>
               {copied ? (
                 <>
                   <Check className="w-3.5 h-3.5 animate-bounce" />
-                  <span>Copied!</span>
+                  <span className="whitespace-nowrap">Copied!</span>
                 </>
               ) : (
                 <>
                   <Copy className="w-3.5 h-3.5 text-[#58a6ff]" />
-                  <span>Copy</span>
+                  <span className="whitespace-nowrap">Copy</span>
                 </>
               )}
             </motion.button>
@@ -295,7 +295,7 @@ export const YamlPreview: React.FC<YamlPreviewProps> = ({ onSwitchToEditor }) =>
               whileTap={{ scale: 0.96 }}
               transition={{ type: 'spring', stiffness: 450, damping: 25 }}
               onClick={handleDownload}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold border backdrop-blur-md transition-all duration-200 ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border backdrop-blur-md transition-all duration-200 whitespace-nowrap shrink-0 ${
                 downloadSuccess
                   ? 'bg-[#238636] border-[#2ea043] text-white shadow-lg shadow-green-500/20 ring-2 ring-[#2ea043]/30'
                   : 'bg-white/[0.04] hover:bg-white/[0.08] border-white/[0.09] hover:border-white/[0.2] text-[#f0f6fc] shadow-sm'
@@ -304,12 +304,12 @@ export const YamlPreview: React.FC<YamlPreviewProps> = ({ onSwitchToEditor }) =>
               {downloadSuccess ? (
                 <>
                   <Check className="w-3.5 h-3.5 animate-bounce" />
-                  <span>Downloaded!</span>
+                  <span className="whitespace-nowrap">Downloaded!</span>
                 </>
               ) : (
                 <>
                   <Download className="w-3.5 h-3.5" />
-                  <span>Download .yml</span>
+                  <span className="whitespace-nowrap">Download</span>
                 </>
               )}
             </motion.button>
@@ -321,14 +321,14 @@ export const YamlPreview: React.FC<YamlPreviewProps> = ({ onSwitchToEditor }) =>
               whileTap={{ scale: 0.96 }}
               transition={{ type: 'spring', stiffness: 450, damping: 25 }}
               onClick={() => setCommitModalOpen(true)}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-[#238636] hover:bg-[#2ea043] border border-white/10 text-white shadow-lg shadow-green-950/40 hover:shadow-green-500/20 backdrop-blur-md transition-all duration-200 group"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#238636] hover:bg-[#2ea043] border border-white/10 text-white shadow-lg shadow-green-950/40 hover:shadow-green-500/20 backdrop-blur-md transition-all duration-200 group whitespace-nowrap shrink-0"
               title="Commit generated workflow directly to your GitHub repository"
             >
               <GitHubIcon className="w-3.5 h-3.5 text-white group-hover:scale-110 transition-transform" />
-              <span>Commit to GitHub</span>
+              <span className="whitespace-nowrap">Commit to GitHub</span>
             </motion.button>
+          </div>
         </div>
-      </div>
 
       {/* Code Editor Body with Synchronized Line Numbers */}
       <div
