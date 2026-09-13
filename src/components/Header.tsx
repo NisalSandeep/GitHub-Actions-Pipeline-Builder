@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useWorkflow } from '../context/WorkflowContext';
+import { useToast } from '../context/ToastContext';
 import { WORKFLOW_PRESETS } from '../utils/presets';
 import {
   Sparkles,
@@ -67,10 +68,17 @@ export const Header: React.FC = () => {
     }
   };
 
+  const { showToast } = useToast();
+
   const handleReset = () => {
     if (confirm('Reset workflow configuration to default Node.js CI?')) {
       resetWorkflow();
       setResetSuccess(true);
+      showToast({
+        type: 'info',
+        title: 'Workflow Reset',
+        description: 'Restored the default Node.js CI pipeline template.',
+      });
       setTimeout(() => setResetSuccess(false), 2000);
     }
   };
@@ -161,6 +169,11 @@ export const Header: React.FC = () => {
                         onClick={() => {
                           loadPreset(preset.id);
                           setPresetDropdownOpen(false);
+                          showToast({
+                            type: 'info',
+                            title: `Loaded Template: ${preset.name}`,
+                            description: preset.description,
+                          });
                         }}
                         className="w-full text-left p-2.5 rounded-lg hover:bg-[#21262d] border border-transparent hover:border-[#30363d] transition-colors group flex items-start gap-2.5"
                       >

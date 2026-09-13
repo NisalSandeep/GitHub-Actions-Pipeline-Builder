@@ -1,6 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 :root {
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --bg-canvas-default: #0d1117;
   --bg-canvas-subtle: #161b22;
   --bg-canvas-overlay: #1f242c;
@@ -11,43 +14,61 @@
   --success-fg: #238636;
   --success-emphasis: #2ea043;
   --fg-default: #f0f6fc;
-  --fg-muted: #8b949e;
+  --fg-muted: #94a3b8;
   --fg-subtle: #6e7681;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 body {
   background-color: #0d1117;
   color: #f0f6fc;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  font-family: var(--font-sans);
   overflow-x: hidden;
+  letter-spacing: -0.01em;
 }
 
-/* Custom scrollbars */
+code, pre, kbd, samp {
+  font-family: var(--font-mono) !important;
+}
+
+::selection {
+  background-color: rgba(56, 139, 253, 0.35);
+  color: #ffffff;
+}
+
+/* Custom sleek scrollbars */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0d1117;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #30363d;
-  border-radius: 4px;
+  background: #282e38;
+  border-radius: 9999px;
+  transition: background 0.2s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: #484f58;
 }
 
-/* Prism YAML Syntax Highlighting custom GitHub dark theme */
+/* Prism YAML Syntax Highlighting custom GitHub dark theme with enhanced contrast */
 pre[class*="language-"] {
   background: #0d1117 !important;
   color: #c9d1d9 !important;
-  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace !important;
-  font-size: 13px !important;
-  line-height: 1.6 !important;
+  font-family: var(--font-mono) !important;
+  font-size: 12.5px !important;
+  line-height: 1.65 !important;
   tab-size: 2;
   padding: 1.25rem !important;
   margin: 0 !important;
@@ -67,7 +88,7 @@ pre[class*="language-"] {
 .token.property,
 .token.tag {
   color: #7ee787 !important;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .token.string,
@@ -78,6 +99,7 @@ pre[class*="language-"] {
 .token.boolean,
 .token.number {
   color: #ff7b72 !important;
+  font-weight: 500;
 }
 
 .token.function {
@@ -93,30 +115,41 @@ pre[class*="language-"] {
   font-weight: bold;
 }
 
+/* Interactive element smoothness */
+input, textarea, select, button {
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+input:focus, textarea:focus {
+  box-shadow: 0 0 0 3px rgba(56, 139, 253, 0.25);
+}
+
 /* Glassmorphism surfaces */
 .glass-panel {
-  background: rgba(22, 27, 34, 0.85);
-  backdrop-filter: blur(12px);
-  border: 1px solid #30363d;
+  background: rgba(22, 27, 34, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(48, 54, 61, 0.8);
 }
 
 .glass-card {
-  background: rgba(33, 38, 45, 0.6);
-  backdrop-filter: blur(8px);
-  border: 1px solid #30363d;
+  background: rgba(33, 38, 45, 0.65);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(48, 54, 61, 0.8);
 }
 
 .glass-card:hover {
-  border-color: #58a6ff;
+  border-color: rgba(88, 166, 255, 0.6);
 }
 
 /* Glow effects */
 .glow-blue {
-  box-shadow: 0 0 20px -5px rgba(47, 129, 247, 0.35);
+  box-shadow: 0 0 24px -4px rgba(47, 129, 247, 0.4);
 }
 
 .glow-green {
-  box-shadow: 0 0 20px -5px rgba(46, 160, 67, 0.4);
+  box-shadow: 0 0 24px -4px rgba(46, 160, 67, 0.45);
 }
 
 /* Animations */
@@ -133,4 +166,44 @@ pre[class*="language-"] {
 
 .animate-fade-in {
   animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Toast animations */
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(120%) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes toastSlideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(120%) scale(0.92);
+  }
+}
+
+@keyframes toastProgress {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+.animate-toast-in {
+  animation: toastSlideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-toast-out {
+  animation: toastSlideOut 0.2s ease-in forwards;
 }

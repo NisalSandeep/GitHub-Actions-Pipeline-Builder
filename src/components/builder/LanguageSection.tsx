@@ -15,6 +15,10 @@ import {
   JavaIcon,
   RustIcon,
   TerminalBashIcon,
+  NpmIcon,
+  YarnIcon,
+  PnpmIcon,
+  BunIcon,
 } from '../icons/BrandIcons';
 
 interface LanguageOption {
@@ -246,20 +250,35 @@ export const LanguageSection: React.FC = () => {
                   Package Manager
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {(['npm', 'yarn', 'pnpm', 'bun'] as const).map((pm) => (
-                    <button
-                      key={pm}
-                      type="button"
-                      onClick={() => updateLanguageNode({ packageManager: pm })}
-                      className={`px-3 py-2 text-xs font-semibold rounded-lg border text-center transition-all ${
-                        state.language.node.packageManager === pm
-                          ? 'bg-[#388bfd1a] border-[#388bfd] text-[#58a6ff]'
-                          : 'bg-[#161b22] border-[#30363d] text-[#8b949e] hover:border-[#8b949e]'
-                      }`}
-                    >
-                      {pm}
-                    </button>
-                  ))}
+                  {(['npm', 'yarn', 'pnpm', 'bun'] as const).map((pm) => {
+                    const getPmIcon = () => {
+                      switch (pm) {
+                        case 'npm':
+                          return <NpmIcon className="w-4 h-4 shrink-0" />;
+                        case 'yarn':
+                          return <YarnIcon className="w-4 h-4 shrink-0" />;
+                        case 'pnpm':
+                          return <PnpmIcon className="w-4 h-4 shrink-0" />;
+                        case 'bun':
+                          return <BunIcon className="w-4 h-4 shrink-0" />;
+                      }
+                    };
+                    return (
+                      <button
+                        key={pm}
+                        type="button"
+                        onClick={() => updateLanguageNode({ packageManager: pm })}
+                        className={`flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold rounded-lg border text-center transition-all ${
+                          state.language.node.packageManager === pm
+                            ? 'bg-[#388bfd1a] border-[#388bfd] text-[#58a6ff]'
+                            : 'bg-[#161b22] border-[#30363d] text-[#8b949e] hover:border-[#8b949e]'
+                        }`}
+                      >
+                        {getPmIcon()}
+                        <span>{pm}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </>

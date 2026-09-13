@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useWorkflow } from '../../context/WorkflowContext';
+import { useToast } from '../../context/ToastContext';
 import { STEP_TEMPLATES } from '../../utils/presets';
 import { StepConfig } from '../../types/workflow';
 import {
@@ -20,6 +21,15 @@ import {
   Check,
   X,
 } from 'lucide-react';
+import {
+  SlackIcon,
+  DockerIcon,
+  GitHubIcon,
+  BeakerIcon,
+  TerminalBashIcon,
+  CodecovIcon,
+  TrivyIcon,
+} from '../icons/BrandIcons';
 
 export const StepsBuilderSection: React.FC = () => {
   const {
@@ -32,9 +42,25 @@ export const StepsBuilderSection: React.FC = () => {
     reorderSteps,
   } = useWorkflow();
 
+  const { showToast } = useToast();
   const [expandedSteps, setExpandedSteps] = useState<Record<string, boolean>>({});
   const [templateModalOpen, setTemplateModalOpen] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+
+  const getStepIcon = (step: { name?: string; uses?: string; run?: string }) => {
+    const str = `${step.name || ''} ${step.uses || ''} ${step.run || ''}`.toLowerCase();
+    if (str.includes('slack')) return <SlackIcon className="w-4 h-4 shrink-0" />;
+    if (str.includes('docker')) return <DockerIcon className="w-4 h-4 shrink-0" />;
+    if (str.includes('codecov')) return <CodecovIcon className="w-4 h-4 shrink-0" />;
+    if (str.includes('trivy') || str.includes('security')) return <TrivyIcon className="w-4 h-4 shrink-0" />;
+    if (str.includes('artifact') || str.includes('checkout') || str.includes('actions/')) {
+      return <GitHubIcon className="w-4 h-4 shrink-0 text-[#f0f6fc]" />;
+    }
+    if (str.includes('test') || str.includes('jest') || str.includes('pytest') || str.includes('coverage')) {
+      return <BeakerIcon className="w-4 h-4 shrink-0" />;
+    }
+    return <TerminalBashIcon className="w-4 h-4 shrink-0" />;
+  };
 
   // Close template modal on Escape key
   useEffect(() => {
@@ -121,7 +147,14 @@ export const StepsBuilderSection: React.FC = () => {
           {/* Add Custom Step Button */}
           <button
             type="button"
-            onClick={() => addStep()}
+            onClick={() => {
+              addStep();
+              showToast({
+                type: 'info',
+                title: 'Custom Step Added',
+                description: 'New blank step appended to the workflow',
+              });
+            }}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-[#238636] hover:bg-[#2ea043] text-white shadow-sm transition-all"
           >
             <Plus className="w-3.5 h-3.5" />
@@ -160,10 +193,15 @@ export const StepsBuilderSection: React.FC = () => {
                     <GripVertical className="w-4 h-4" />
                   </div>
 
-                  {/* Step Index Badge */}
-                  <span className="w-5 h-5 flex items-center justify-center rounded-full bg-[#21262d] text-[10px] font-mono font-bold text-[#8b949e]">
-                    {index + 1}
-                  </span>
+                  {/* Step Index Badge & Icon */}
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="w-5 h-5 flex items-center justify-center rounded-full bg-[#21262d] text-[10px] font-mono font-bold text-[#8b949e]">
+                      {index + 1}
+                    </span>
+                    <div className="p-1 rounded-md bg-[#0d1117] border border-[#30363d]">
+                      {getStepIcon(step)}
+                    </div>
+                  </div>
 
                   {/* Step Name (inline editable or title) */}
                   <button
@@ -202,7 +240,14 @@ export const StepsBuilderSection: React.FC = () => {
                   </button>
                   <button
                     type="button"
-                    onClick={() => duplicateStep(step.id)}
+                    onClick={() => {
+                      duplicateStep(step.id);
+                      showToast({
+                        type: 'info',
+                        title: 'Step Duplicated',
+                        description: `Created clone of "${step.name || 'Step'}"`,
+                      });
+                    }}
                     className="p-1 rounded text-[#8b949e] hover:text-[#58a6ff] hover:bg-[#21262d]"
                     title="Duplicate step"
                   >
@@ -210,7 +255,14 @@ export const StepsBuilderSection: React.FC = () => {
                   </button>
                   <button
                     type="button"
-                    onClick={() => removeStep(step.id)}
+                    onClick={() => {
+                      removeStep(step.id);
+                      showToast({
+                        type: 'warning',
+                        title: 'Step Removed',
+                        description: `Deleted "${step.name || 'Step'}" from pipeline`,
+                      });
+                    }}
                     className="p-1 rounded text-[#8b949e] hover:text-[#f85149] hover:bg-[#21262d]"
                     title="Delete step"
                   >
@@ -405,24 +457,34 @@ export const StepsBuilderSection: React.FC = () => {
                   key={idx}
                   className="p-3 rounded-xl bg-[#0d1117] border border-[#30363d] hover:border-[#58a6ff] transition-all flex items-center justify-between gap-3 group"
                 >
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-semibold text-[#f0f6fc] group-hover:text-[#58a6ff]">
-                        {tmpl.name}
-                      </span>
-                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-[#21262d] text-[#8b949e]">
-                        {tmpl.category}
-                      </span>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="p-2 rounded-lg bg-[#161b22] border border-[#30363d] shrink-0">
+                      {getStepIcon(tmpl)}
                     </div>
-                    <code className="text-[11px] text-[#8b949e] truncate block mt-0.5">
-                      {tmpl.uses || tmpl.run}
-                    </code>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold text-[#f0f6fc] group-hover:text-[#58a6ff]">
+                          {tmpl.name}
+                        </span>
+                        <span className="text-[10px] px-1.5 py-0.2 rounded bg-[#21262d] text-[#8b949e]">
+                          {tmpl.category}
+                        </span>
+                      </div>
+                      <code className="text-[11px] text-[#8b949e] truncate block mt-0.5">
+                        {tmpl.uses || tmpl.run}
+                      </code>
+                    </div>
                   </div>
                   <button
                     type="button"
                     onClick={() => {
                       addStep(tmpl);
                       setTemplateModalOpen(false);
+                      showToast({
+                        type: 'info',
+                        title: `Added Step: ${tmpl.name}`,
+                        description: tmpl.uses ? `Uses action: ${tmpl.uses}` : `Runs command: ${tmpl.run}`,
+                      });
                     }}
                     className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-[#21262d] hover:bg-[#238636] text-[#f0f6fc] hover:text-white transition-all shrink-0"
                   >

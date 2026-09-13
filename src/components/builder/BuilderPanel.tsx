@@ -54,32 +54,44 @@ const AccordionSection: React.FC<AccordionSectionProps> = ({
   children,
 }) => {
   return (
-    <div className="rounded-xl border border-[#30363d] bg-[#161b22] overflow-hidden transition-all shadow-sm">
+    <div
+      className={`rounded-xl border transition-all duration-200 shadow-sm ${
+        isOpen
+          ? 'border-[#388bfd]/40 bg-[#161b22] shadow-blue-950/20'
+          : 'border-[#30363d] bg-[#161b22]/90 hover:border-[#484f58]'
+      }`}
+    >
       <button
         type="button"
         onClick={onToggle}
-        className="w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-[#21262d]/70 transition-colors"
+        className="w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-[#21262d]/60 transition-colors group"
       >
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="p-2 rounded-lg bg-[#21262d] border border-[#30363d] text-[#58a6ff] shrink-0 flex items-center justify-center">
+        <div className="flex items-center gap-3.5 min-w-0">
+          <div className="p-2 rounded-lg bg-[#0d1117] border border-[#30363d] text-[#58a6ff] shrink-0 flex items-center justify-center shadow-inner group-hover:border-[#58a6ff]/40 transition-colors">
             {icon}
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <h2 className="text-xs font-bold text-[#f0f6fc] tracking-tight">{title}</h2>
+              <h2 className="text-xs font-bold text-[#f0f6fc] tracking-tight group-hover:text-[#58a6ff] transition-colors">
+                {title}
+              </h2>
               {badge}
             </div>
-            <p className="text-[11px] text-[#8b949e] truncate">{subtitle}</p>
+            <p className="text-[11px] text-[#94a3b8] truncate mt-0.5">{subtitle}</p>
           </div>
         </div>
 
-        <div className="text-[#8b949e] p-1 rounded-md hover:text-[#f0f6fc]">
-          {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+        <div
+          className={`p-1 rounded-md text-[#94a3b8] group-hover:text-[#f0f6fc] transition-transform duration-200 ${
+            isOpen ? 'rotate-180' : 'rotate-0'
+          }`}
+        >
+          <ChevronDown className="w-4 h-4" />
         </div>
       </button>
 
       {isOpen && (
-        <div className="p-4 pt-3 border-t border-[#30363d]/60 bg-[#161b22]/50 animate-fade-in">
+        <div className="p-4 pt-3 border-t border-[#30363d]/60 bg-[#161b22]/40 animate-fade-in">
           {children}
         </div>
       )}

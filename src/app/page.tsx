@@ -2,16 +2,18 @@
 
 import React from 'react';
 import { WorkflowProvider } from '../context/WorkflowContext';
+import { ToastProvider } from '../context/ToastContext';
 import { Header } from '../components/Header';
 import { BuilderPanel } from '../components/builder/BuilderPanel';
 import { OutputPanel } from '../components/preview/OutputPanel';
 
 export default function Home() {
   return (
-    <WorkflowProvider>
-      <div className="min-h-screen bg-[#0d1117] text-[#f0f6fc] flex flex-col selection:bg-[#2f81f7] selection:text-white">
-        {/* Global Navigation Header */}
-        <Header />
+    <ToastProvider>
+      <WorkflowProvider>
+        <div className="min-h-screen bg-[#0d1117] text-[#f0f6fc] flex flex-col selection:bg-[#2f81f7] selection:text-white">
+          {/* Global Navigation Header */}
+          <Header />
 
         {/* Main Split-Screen Workspace */}
         <main className="flex-1 max-w-[1680px] w-full mx-auto px-4 lg:px-8 py-6">
@@ -77,5 +79,6 @@ export default function Home() {
         </footer>
       </div>
     </WorkflowProvider>
+  </ToastProvider>
   );
 }

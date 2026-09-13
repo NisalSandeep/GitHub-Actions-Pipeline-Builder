@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useWorkflow } from '../../context/WorkflowContext';
+import { useToast } from '../../context/ToastContext';
 import Prism from 'prismjs';
 import 'prismjs/components/prism-yaml';
 import confetti from 'canvas-confetti';
@@ -68,6 +69,8 @@ export const YamlPreview: React.FC = () => {
 
   const rawLines = useMemo(() => yaml.split('\n'), [yaml]);
 
+  const { showToast } = useToast();
+
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(yaml);
@@ -78,9 +81,19 @@ export const YamlPreview: React.FC = () => {
         origin: { y: 0.8 },
         colors: ['#2ea043', '#58a6ff', '#a371f7'],
       });
+      showToast({
+        type: 'success',
+        title: 'YAML Copied to Clipboard!',
+        description: `Ready to paste into .github/workflows/${state.global.filename || 'main.yml'}`,
+      });
       setTimeout(() => setCopied(false), 2500);
     } catch (err) {
       console.error('Failed to copy', err);
+      showToast({
+        type: 'error',
+        title: 'Failed to Copy',
+        description: 'Please copy manually from the editor.',
+      });
     }
   };
 
@@ -101,9 +114,19 @@ export const YamlPreview: React.FC = () => {
       URL.revokeObjectURL(url);
 
       setDownloadSuccess(true);
+      showToast({
+        type: 'success',
+        title: 'Workflow Downloaded!',
+        description: `Saved ${filename} to your downloads.`,
+      });
       setTimeout(() => setDownloadSuccess(false), 2500);
     } catch (err) {
       console.error('Failed to download', err);
+      showToast({
+        type: 'error',
+        title: 'Download Failed',
+        description: 'An error occurred while generating the file.',
+      });
     }
   };
 

@@ -2,16 +2,23 @@
 
 import React, { useState } from 'react';
 import { useWorkflow } from '../../context/WorkflowContext';
+import { useToast } from '../../context/ToastContext';
 import { KeyRound, Copy, Check, ExternalLink, ShieldAlert, CheckCircle2 } from 'lucide-react';
 
 export const SecretsInspector: React.FC = () => {
   const { requiredSecrets } = useWorkflow();
+  const { showToast } = useToast();
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   const copySecretKey = async (name: string) => {
     try {
       await navigator.clipboard.writeText(name);
       setCopiedKey(name);
+      showToast({
+        type: 'success',
+        title: `Secret Copied: ${name}`,
+        description: 'Ready to paste into GitHub Repository Settings → Secrets',
+      });
       setTimeout(() => setCopiedKey(null), 2000);
     } catch (err) {
       console.error(err);

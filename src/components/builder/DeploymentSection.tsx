@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useWorkflow } from '../../context/WorkflowContext';
+import { useToast } from '../../context/ToastContext';
 import { DeploymentTarget, AwsService } from '../../types/workflow';
 import {
   Rocket,
@@ -79,10 +80,18 @@ export const DeploymentSection: React.FC = () => {
     updateGitHubPagesDeployment,
   } = useWorkflow();
 
+  const { showToast } = useToast();
+
   const handleSelectTarget = (target: DeploymentTarget) => {
+    const opt = TARGETS.find((t) => t.target === target);
     updateDeployment({
       enabled: target !== 'none',
       target,
+    });
+    showToast({
+      type: target === 'none' ? 'info' : 'success',
+      title: `Deployment: ${opt?.name || target}`,
+      description: opt?.desc || '',
     });
   };
 
