@@ -21,6 +21,10 @@ import {
   PythonIcon,
   GoIcon,
   RustIcon,
+  PhpIcon,
+  DotnetIcon,
+  RubyIcon,
+  FlutterIcon,
   VercelIcon,
   DockerIcon,
   AwsIcon,
@@ -64,6 +68,14 @@ export const Header: React.FC = () => {
         return <GoIcon className="w-5 h-5 shrink-0" />;
       case 'rust-ci':
         return <RustIcon className="w-5 h-5 shrink-0" />;
+      case 'php-laravel':
+        return <PhpIcon className="w-5 h-5 shrink-0" />;
+      case 'dotnet-ci':
+        return <DotnetIcon className="w-5 h-5 shrink-0" />;
+      case 'ruby-rails':
+        return <RubyIcon className="w-5 h-5 shrink-0" />;
+      case 'flutter-ci':
+        return <FlutterIcon className="w-5 h-5 shrink-0" />;
       default:
         return <Sparkles className="w-5 h-5 text-[#f0883e] shrink-0" />;
     }

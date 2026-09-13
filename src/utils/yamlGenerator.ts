@@ -206,6 +206,15 @@ function getMatrixStrategy(language: WorkflowState['language']): Record<string, 
   if (language.type === 'rust' && language.rust.useMatrix && language.rust.toolchains.length > 1) {
     return { 'rust-toolchain': language.rust.toolchains };
   }
+  if (language.type === 'php' && language.php.useMatrix && language.php.versions.length > 1) {
+    return { 'php-version': language.php.versions };
+  }
+  if (language.type === 'dotnet' && language.dotnet.useMatrix && language.dotnet.versions.length > 1) {
+    return { 'dotnet-version': language.dotnet.versions };
+  }
+  if (language.type === 'ruby' && language.ruby.useMatrix && language.ruby.versions.length > 1) {
+    return { 'ruby-version': language.ruby.versions };
+  }
   return null;
 }
 
@@ -324,6 +333,87 @@ function getLanguageSetupSteps(language: WorkflowState['language'], caching: Wor
         steps.push("          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}");
         steps.push('          restore-keys: |');
         steps.push('            ${{ runner.os }}-cargo-');
+      }
+      break;
+    }
+
+    case 'php': {
+      const isMatrix = language.php.useMatrix && language.php.versions.length > 1;
+      const versionStr = isMatrix ? '${{ matrix.php-version }}' : (language.php.versions[0] || '8.3');
+
+      steps.push('');
+      steps.push(`      - name: Set up PHP ${versionStr}`);
+      steps.push('        uses: shivammathur/setup-php@v2');
+      steps.push('        with:');
+      steps.push(`          php-version: '${versionStr}'`);
+      if (language.php.extensions.length > 0) {
+        steps.push(`          extensions: ${language.php.extensions.join(', ')}`);
+      }
+      if (language.php.coverage !== 'none') {
+        steps.push(`          coverage: ${language.php.coverage}`);
+      }
+      if (caching.enabled) {
+        steps.push('          tools: composer:v2');
+        steps.push('');
+        steps.push('      - name: Get Composer Cache Directory');
+        steps.push('        id: composer-cache');
+        steps.push('        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT');
+        steps.push('');
+        steps.push('      - name: Cache Composer dependencies');
+        steps.push('        uses: actions/cache@v4');
+        steps.push('        with:');
+        steps.push('          path: ${{ steps.composer-cache.outputs.dir }}');
+        steps.push("          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}");
+        steps.push('          restore-keys: |');
+        steps.push('            ${{ runner.os }}-composer-');
+      }
+      break;
+    }
+
+    case 'dotnet': {
+      const isMatrix = language.dotnet.useMatrix && language.dotnet.versions.length > 1;
+      const versionStr = isMatrix ? '${{ matrix.dotnet-version }}' : (language.dotnet.versions[0] || '8.0.x');
+
+      steps.push('');
+      steps.push(`      - name: Set up .NET ${versionStr}`);
+      steps.push('        uses: actions/setup-dotnet@v4');
+      steps.push('        with:');
+      steps.push(`          dotnet-version: '${versionStr}'`);
+      if (caching.enabled) {
+        steps.push('          cache: true');
+      }
+      break;
+    }
+
+    case 'ruby': {
+      const isMatrix = language.ruby.useMatrix && language.ruby.versions.length > 1;
+      const versionStr = isMatrix ? '${{ matrix.ruby-version }}' : (language.ruby.versions[0] || '3.3');
+
+      steps.push('');
+      steps.push(`      - name: Set up Ruby ${versionStr}`);
+      steps.push('        uses: ruby/setup-ruby@v1');
+      steps.push('        with:');
+      steps.push(`          ruby-version: '${versionStr}'`);
+      if (language.ruby.bundlerCache || caching.enabled) {
+        steps.push('          bundler-cache: true');
+      }
+      break;
+    }
+
+    case 'flutter': {
+      const channel = language.flutter.channel || 'stable';
+      const version = language.flutter.version.trim();
+
+      steps.push('');
+      steps.push(`      - name: Set up Flutter (${channel})`);
+      steps.push('        uses: subosito/flutter-action@v2');
+      steps.push('        with:');
+      steps.push(`          channel: '${channel}'`);
+      if (version) {
+        steps.push(`          flutter-version: '${version}'`);
+      }
+      if (language.flutter.cache || caching.enabled) {
+        steps.push('          cache: true');
       }
       break;
     }

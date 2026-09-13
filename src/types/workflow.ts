@@ -1,6 +1,6 @@
 export type RunnerOS = 'ubuntu-latest' | 'windows-latest' | 'macos-latest' | 'self-hosted';
 
-export type LanguageType = 'node' | 'python' | 'go' | 'java' | 'rust' | 'none';
+export type LanguageType = 'node' | 'python' | 'go' | 'java' | 'rust' | 'php' | 'dotnet' | 'ruby' | 'flutter' | 'none';
 
 export type DeploymentTarget = 'none' | 'docker' | 'aws' | 'vercel' | 'github_pages';
 
@@ -97,6 +97,30 @@ export interface RustConfig {
   components: string[];
 }
 
+export interface PhpConfig {
+  versions: string[];
+  useMatrix: boolean;
+  extensions: string[];
+  coverage: 'xdebug' | 'pcov' | 'none';
+}
+
+export interface DotnetConfig {
+  versions: string[];
+  useMatrix: boolean;
+}
+
+export interface RubyConfig {
+  versions: string[];
+  useMatrix: boolean;
+  bundlerCache: boolean;
+}
+
+export interface FlutterConfig {
+  channel: 'stable' | 'beta' | 'master';
+  version: string;
+  cache: boolean;
+}
+
 export interface LanguageConfig {
   type: LanguageType;
   node: NodeConfig;
@@ -104,6 +128,10 @@ export interface LanguageConfig {
   go: GoConfig;
   java: JavaConfig;
   rust: RustConfig;
+  php: PhpConfig;
+  dotnet: DotnetConfig;
+  ruby: RubyConfig;
+  flutter: FlutterConfig;
 }
 
 export interface CachingConfig {

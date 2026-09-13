@@ -62,6 +62,26 @@ export const DEFAULT_WORKFLOW_STATE: WorkflowState = {
       useMatrix: false,
       components: ['clippy', 'rustfmt'],
     },
+    php: {
+      versions: ['8.2', '8.3'],
+      useMatrix: true,
+      extensions: ['mbstring', 'xml', 'curl', 'pdo_sqlite'],
+      coverage: 'none',
+    },
+    dotnet: {
+      versions: ['8.0.x'],
+      useMatrix: false,
+    },
+    ruby: {
+      versions: ['3.2', '3.3'],
+      useMatrix: true,
+      bundlerCache: true,
+    },
+    flutter: {
+      channel: 'stable',
+      version: '',
+      cache: true,
+    },
   },
   caching: {
     enabled: true,
@@ -387,11 +407,211 @@ export const WORKFLOW_PRESETS: WorkflowPreset[] = [
       },
     },
   },
+  {
+    id: 'php-laravel',
+    name: 'PHP + Laravel CI',
+    badge: 'Laravel PHP',
+    description: 'PHP 8.2 & 8.3 matrix test suite with Composer caching, Laravel environment setup, and PHPUnit.',
+    state: {
+      global: {
+        ...DEFAULT_WORKFLOW_STATE.global,
+        workflowName: 'Laravel Continuous Integration',
+        filename: 'laravel.yml',
+      },
+      language: {
+        ...DEFAULT_WORKFLOW_STATE.language,
+        type: 'php',
+        php: {
+          versions: ['8.2', '8.3'],
+          useMatrix: true,
+          extensions: ['mbstring', 'xml', 'curl', 'pdo_sqlite'],
+          coverage: 'none',
+        },
+      },
+      steps: [
+        {
+          id: 'step-1',
+          name: 'Copy Environment File',
+          run: 'cp .env.example .env',
+          env: [],
+        },
+        {
+          id: 'step-2',
+          name: 'Install Composer Dependencies',
+          run: 'composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist',
+          env: [],
+        },
+        {
+          id: 'step-3',
+          name: 'Generate Application Encryption Key',
+          run: 'php artisan key:generate',
+          env: [],
+        },
+        {
+          id: 'step-4',
+          name: 'Execute Tests via PHPUnit',
+          run: 'vendor/bin/phpunit',
+          env: [{ key: 'DB_CONNECTION', value: 'sqlite' }, { key: 'DB_DATABASE', value: ':memory:' }],
+        },
+      ],
+      deployment: {
+        ...DEFAULT_WORKFLOW_STATE.deployment,
+        enabled: false,
+        target: 'none',
+      },
+    },
+  },
+  {
+    id: 'dotnet-ci',
+    name: '.NET / C# Solution CI',
+    badge: '.NET 8 / 9',
+    description: 'Modern .NET SDK setup, NuGet package restore, Release configuration compilation, and VSTest/xUnit execution.',
+    state: {
+      global: {
+        ...DEFAULT_WORKFLOW_STATE.global,
+        workflowName: '.NET Test and Build',
+        filename: 'dotnet.yml',
+      },
+      language: {
+        ...DEFAULT_WORKFLOW_STATE.language,
+        type: 'dotnet',
+        dotnet: {
+          versions: ['8.0.x'],
+          useMatrix: false,
+        },
+      },
+      steps: [
+        {
+          id: 'step-1',
+          name: 'Restore NuGet Dependencies',
+          run: 'dotnet restore',
+          env: [],
+        },
+        {
+          id: 'step-2',
+          name: 'Build Solution (Release)',
+          run: 'dotnet build --no-restore --configuration Release',
+          env: [],
+        },
+        {
+          id: 'step-3',
+          name: 'Run Unit and Integration Tests',
+          run: 'dotnet test --no-build --verbosity normal --configuration Release',
+          env: [],
+        },
+      ],
+      deployment: {
+        ...DEFAULT_WORKFLOW_STATE.deployment,
+        enabled: false,
+        target: 'none',
+      },
+    },
+  },
+  {
+    id: 'ruby-rails',
+    name: 'Ruby on Rails CI',
+    badge: 'Rails Ruby',
+    description: 'Ruby 3.2 & 3.3 matrix testing with Bundler caching, RuboCop code style audit, and RSpec test execution.',
+    state: {
+      global: {
+        ...DEFAULT_WORKFLOW_STATE.global,
+        workflowName: 'Ruby on Rails Test Suite',
+        filename: 'rails.yml',
+      },
+      language: {
+        ...DEFAULT_WORKFLOW_STATE.language,
+        type: 'ruby',
+        ruby: {
+          versions: ['3.2', '3.3'],
+          useMatrix: true,
+          bundlerCache: true,
+        },
+      },
+      steps: [
+        {
+          id: 'step-1',
+          name: 'Install Bundler Dependencies',
+          run: 'bundle install --jobs 4 --retry 3',
+          env: [],
+        },
+        {
+          id: 'step-2',
+          name: 'Run RuboCop Linter',
+          run: 'bundle exec rubocop',
+          env: [],
+        },
+        {
+          id: 'step-3',
+          name: 'Run RSpec Test Suite',
+          run: 'bundle exec rspec',
+          env: [{ key: 'RAILS_ENV', value: 'test' }],
+        },
+      ],
+      deployment: {
+        ...DEFAULT_WORKFLOW_STATE.deployment,
+        enabled: false,
+        target: 'none',
+      },
+    },
+  },
+  {
+    id: 'flutter-ci',
+    name: 'Flutter & Dart CI',
+    badge: 'Flutter App',
+    description: 'Cross-platform Flutter SDK setup on the stable channel with dependency caching, code formatting, linter, and unit test runner.',
+    state: {
+      global: {
+        ...DEFAULT_WORKFLOW_STATE.global,
+        workflowName: 'Flutter App Quality & Test',
+        filename: 'flutter.yml',
+      },
+      language: {
+        ...DEFAULT_WORKFLOW_STATE.language,
+        type: 'flutter',
+        flutter: {
+          channel: 'stable',
+          version: '',
+          cache: true,
+        },
+      },
+      steps: [
+        {
+          id: 'step-1',
+          name: 'Install Flutter Packages',
+          run: 'flutter pub get',
+          env: [],
+        },
+        {
+          id: 'step-2',
+          name: 'Verify Dart Code Formatting',
+          run: 'dart format --output=none --set-exit-if-changed .',
+          env: [],
+        },
+        {
+          id: 'step-3',
+          name: 'Analyze Code with Flutter Analyzer',
+          run: 'flutter analyze',
+          env: [],
+        },
+        {
+          id: 'step-4',
+          name: 'Run Flutter Test Suite',
+          run: 'flutter test --coverage',
+          env: [],
+        },
+      ],
+      deployment: {
+        ...DEFAULT_WORKFLOW_STATE.deployment,
+        enabled: false,
+        target: 'none',
+      },
+    },
+  },
 ];
 
 export const STEP_TEMPLATES: StepTemplate[] = [
   {
-    name: 'Run Unit Tests',
+    name: 'Run Unit Tests (npm test)',
     run: 'npm test',
     category: 'Testing',
     env: [{ key: 'CI', value: 'true' }],
@@ -400,6 +620,30 @@ export const STEP_TEMPLATES: StepTemplate[] = [
     name: 'Run ESLint / Code Quality',
     run: 'npx eslint . --ext .js,.jsx,.ts,.tsx',
     category: 'Linting',
+    env: [],
+  },
+  {
+    name: 'Run PHPUnit Test Suite',
+    run: 'vendor/bin/phpunit',
+    category: 'Testing',
+    env: [{ key: 'APP_ENV', value: 'testing' }],
+  },
+  {
+    name: 'Run .NET Test Suite',
+    run: 'dotnet test --no-build --verbosity normal --configuration Release',
+    category: 'Testing',
+    env: [],
+  },
+  {
+    name: 'Run RSpec Test Suite',
+    run: 'bundle exec rspec',
+    category: 'Testing',
+    env: [{ key: 'RAILS_ENV', value: 'test' }],
+  },
+  {
+    name: 'Run Flutter Test Suite',
+    run: 'flutter test --coverage',
+    category: 'Testing',
     env: [],
   },
   {

@@ -19,6 +19,14 @@ export const CacheSection: React.FC = () => {
         return `Configures ${state.language.java.buildTool} dependency caching via actions/setup-java@v4.`;
       case 'rust':
         return 'Injects actions/cache@v4 targeting ~/.cargo/registry, ~/.cargo/git, and target/ directories.';
+      case 'php':
+        return 'Queries composer cache-files-dir and injects actions/cache@v4 with composer.lock hash.';
+      case 'dotnet':
+        return 'Enables built-in NuGet package cache via actions/setup-dotnet@v4.';
+      case 'ruby':
+        return 'Enables automatic Bundler gem caching via ruby/setup-ruby@v1 (bundler-cache: true).';
+      case 'flutter':
+        return 'Enables built-in Pub dependency caching via subosito/flutter-action@v2.';
       default:
         return 'Enables custom directory caching across pipeline workflow runs.';
     }

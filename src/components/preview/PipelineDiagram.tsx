@@ -22,6 +22,10 @@ import {
   GoIcon,
   JavaIcon,
   RustIcon,
+  PhpIcon,
+  DotnetIcon,
+  RubyIcon,
+  FlutterIcon,
   TerminalBashIcon,
   DockerIcon,
   AwsIcon,
@@ -50,6 +54,14 @@ export const PipelineDiagram: React.FC = () => {
         return <JavaIcon className="w-4 h-4" />;
       case 'rust':
         return <RustIcon className="w-4 h-4" />;
+      case 'php':
+        return <PhpIcon className="w-4 h-4" />;
+      case 'dotnet':
+        return <DotnetIcon className="w-4 h-4" />;
+      case 'ruby':
+        return <RubyIcon className="w-4 h-4" />;
+      case 'flutter':
+        return <FlutterIcon className="w-4 h-4" />;
       default:
         return <TerminalBashIcon className="w-4 h-4" />;
     }

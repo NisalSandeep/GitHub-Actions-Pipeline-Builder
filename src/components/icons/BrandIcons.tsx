@@ -523,3 +523,111 @@ export const BeakerIcon: React.FC<IconProps> = ({ className = 'w-6 h-6', size, .
     <path d="M10 20H22" stroke="#3FB950" strokeWidth="2" strokeLinecap="round" />
   </svg>
 );
+
+/**
+ * Official PHP Logo (Rich purple/indigo oval badge with white typography)
+ */
+export const PhpIcon: React.FC<IconProps> = ({ className = 'w-6 h-6', size, ...props }) => (
+  <svg
+    viewBox="0 0 64 64"
+    width={size}
+    height={size}
+    className={className}
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
+    <rect width="64" height="64" rx="14" fill="#1B1D2E" />
+    <ellipse cx="32" cy="32" rx="28" ry="17" fill="#777BB4" />
+    {/* 'p' */}
+    <path
+      d="M16 23H22.5C25.5 23 27 24.5 27 27.5C27 30.5 25.5 32 22.5 32H19.5L17.5 41H13.5L16 23ZM20 29H22C23.5 29 24.2 28.5 24.2 27.5C24.2 26.5 23.5 26 22 26H19.5L20 29Z"
+      fill="#FFFFFF"
+    />
+    {/* 'h' */}
+    <path
+      d="M29 19H33L31.5 26C32.8 24 34.8 23 37.2 23C39.8 23 41.2 24.5 40.8 27.5L38.2 41H34.2L36.5 28.5C36.8 27 36 26 34.5 26C32.8 26 31.5 27.5 31 30L28.8 41H24.8L29 19Z"
+      fill="#FFFFFF"
+    />
+    {/* 'p' */}
+    <path
+      d="M43 23H49.5C52.5 23 54 24.5 54 27.5C54 30.5 52.5 32 49.5 32H46.5L44.5 41H40.5L43 23ZM47 29H49C50.5 29 51.2 28.5 51.2 27.5C51.2 26.5 50.5 26 49 26H46.5L47 29Z"
+      fill="#FFFFFF"
+    />
+  </svg>
+);
+
+/**
+ * Official Microsoft .NET Logo (.NET brand purple with white and cyan accent)
+ */
+export const DotnetIcon: React.FC<IconProps> = ({ className = 'w-6 h-6', size, ...props }) => (
+  <svg
+    viewBox="0 0 64 64"
+    width={size}
+    height={size}
+    className={className}
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
+    <rect width="64" height="64" rx="14" fill="#512BD4" />
+    {/* Dot */}
+    <circle cx="12" cy="42" r="3.2" fill="#FFFFFF" />
+    {/* N */}
+    <path d="M18 45V20H23.5L31.5 34.5V20H36V45H30.5L22.5 30.5V45H18Z" fill="#FFFFFF" />
+    {/* E */}
+    <path d="M39 45V20H50V25H44V30H49V35H44V40H50V45H39Z" fill="#FFFFFF" />
+    {/* T with cyan highlight */}
+    <path d="M52 20H60V25H57.5V45H54.5V25H52V20Z" fill="#50E6FF" />
+  </svg>
+);
+
+/**
+ * Official Ruby Gem Logo (Faceted red gemstone)
+ */
+export const RubyIcon: React.FC<IconProps> = ({ className = 'w-6 h-6', size, ...props }) => (
+  <svg
+    viewBox="0 0 64 64"
+    width={size}
+    height={size}
+    className={className}
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
+    <rect width="64" height="64" rx="14" fill="#1C181E" />
+    {/* Faceted ruby gemstone */}
+    <path d="M20 18L44 18L53 28L32 52L11 28L20 18Z" fill="#CC342D" />
+    <path d="M20 18L32 28L11 28L20 18Z" fill="#E54E46" />
+    <path d="M44 18L32 28L53 28L44 18Z" fill="#9E1913" />
+    <path d="M20 18L32 15L44 18L32 28L20 18Z" fill="#F87973" />
+    <path d="M11 28L32 28L32 52L11 28Z" fill="#A81D17" />
+    <path d="M53 28L32 28L32 52L53 28Z" fill="#750E09" />
+    <path d="M26 28L32 45L38 28L32 20L26 28Z" fill="#FFFFFF" fillOpacity="0.25" />
+  </svg>
+);
+
+/**
+ * Official Flutter Logo (Dual-wing cyan and royal blue)
+ */
+export const FlutterIcon: React.FC<IconProps> = ({ className = 'w-6 h-6', size, ...props }) => (
+  <svg
+    viewBox="0 0 64 64"
+    width={size}
+    height={size}
+    className={className}
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
+    <rect width="64" height="64" rx="14" fill="#0A1628" />
+    {/* Top wing */}
+    <path d="M46 11L18 39H32L53 18L46 11Z" fill="#54C5F8" />
+    {/* Middle wing */}
+    <path d="M32 39L20 51L28 59L48 39H32Z" fill="#29B6F6" />
+    {/* Lower diamond / shadow */}
+    <path d="M32 55L38 49L44 55L38 61L32 55Z" fill="#01579B" />
+    <path d="M38 49L48 39H40L32 47L38 49Z" fill="#02569B" />
+    <path d="M38 49L44 55L52 47L46 41L38 49Z" fill="#0175C2" />
+  </svg>
+);

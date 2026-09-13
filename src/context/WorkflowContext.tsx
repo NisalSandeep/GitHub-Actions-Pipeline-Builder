@@ -10,6 +10,10 @@ import {
   GoConfig,
   JavaConfig,
   RustConfig,
+  PhpConfig,
+  DotnetConfig,
+  RubyConfig,
+  FlutterConfig,
   CachingConfig,
   StepConfig,
   DeploymentConfig,
@@ -37,6 +41,10 @@ interface WorkflowContextType {
   updateLanguageGo: (partial: Partial<GoConfig>) => void;
   updateLanguageJava: (partial: Partial<JavaConfig>) => void;
   updateLanguageRust: (partial: Partial<RustConfig>) => void;
+  updateLanguagePhp: (partial: Partial<PhpConfig>) => void;
+  updateLanguageDotnet: (partial: Partial<DotnetConfig>) => void;
+  updateLanguageRuby: (partial: Partial<RubyConfig>) => void;
+  updateLanguageFlutter: (partial: Partial<FlutterConfig>) => void;
   updateCaching: (partial: Partial<CachingConfig>) => void;
   addStep: (stepTemplate?: Partial<StepConfig>) => void;
   updateStep: (id: string, partial: Partial<StepConfig>) => void;
@@ -152,6 +160,29 @@ export const WorkflowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           { id: 'step-rs-2', name: 'Run Clippy linter', run: 'cargo clippy -- -D warnings', env: [] },
           { id: 'step-rs-3', name: 'Run tests', run: 'cargo test --verbose', env: [] },
         ];
+      } else if (type === 'php') {
+        defaultSteps = [
+          { id: 'step-php-1', name: 'Install Composer dependencies', run: 'composer install --prefer-dist --no-progress', env: [] },
+          { id: 'step-php-2', name: 'Run PHPUnit tests', run: 'vendor/bin/phpunit', env: [] },
+        ];
+      } else if (type === 'dotnet') {
+        defaultSteps = [
+          { id: 'step-dotnet-1', name: 'Restore dependencies', run: 'dotnet restore', env: [] },
+          { id: 'step-dotnet-2', name: 'Build solution', run: 'dotnet build --no-restore --configuration Release', env: [] },
+          { id: 'step-dotnet-3', name: 'Run tests', run: 'dotnet test --no-build --verbosity normal --configuration Release', env: [] },
+        ];
+      } else if (type === 'ruby') {
+        defaultSteps = [
+          { id: 'step-ruby-1', name: 'Install gems', run: 'bundle install --jobs 4 --retry 3', env: [] },
+          { id: 'step-ruby-2', name: 'Run RuboCop', run: 'bundle exec rubocop', env: [] },
+          { id: 'step-ruby-3', name: 'Run RSpec tests', run: 'bundle exec rspec', env: [] },
+        ];
+      } else if (type === 'flutter') {
+        defaultSteps = [
+          { id: 'step-flutter-1', name: 'Install dependencies', run: 'flutter pub get', env: [] },
+          { id: 'step-flutter-2', name: 'Analyze code', run: 'flutter analyze', env: [] },
+          { id: 'step-flutter-3', name: 'Run Flutter tests', run: 'flutter test --coverage', env: [] },
+        ];
       }
 
       return {
@@ -208,6 +239,46 @@ export const WorkflowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       language: {
         ...prev.language,
         rust: { ...prev.language.rust, ...partial },
+      },
+    }));
+  }, []);
+
+  const updateLanguagePhp = useCallback((partial: Partial<PhpConfig>) => {
+    setState((prev) => ({
+      ...prev,
+      language: {
+        ...prev.language,
+        php: { ...prev.language.php, ...partial },
+      },
+    }));
+  }, []);
+
+  const updateLanguageDotnet = useCallback((partial: Partial<DotnetConfig>) => {
+    setState((prev) => ({
+      ...prev,
+      language: {
+        ...prev.language,
+        dotnet: { ...prev.language.dotnet, ...partial },
+      },
+    }));
+  }, []);
+
+  const updateLanguageRuby = useCallback((partial: Partial<RubyConfig>) => {
+    setState((prev) => ({
+      ...prev,
+      language: {
+        ...prev.language,
+        ruby: { ...prev.language.ruby, ...partial },
+      },
+    }));
+  }, []);
+
+  const updateLanguageFlutter = useCallback((partial: Partial<FlutterConfig>) => {
+    setState((prev) => ({
+      ...prev,
+      language: {
+        ...prev.language,
+        flutter: { ...prev.language.flutter, ...partial },
       },
     }));
   }, []);
@@ -369,6 +440,10 @@ export const WorkflowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         updateLanguageGo,
         updateLanguageJava,
         updateLanguageRust,
+        updateLanguagePhp,
+        updateLanguageDotnet,
+        updateLanguageRuby,
+        updateLanguageFlutter,
         updateCaching,
         addStep,
         updateStep,
