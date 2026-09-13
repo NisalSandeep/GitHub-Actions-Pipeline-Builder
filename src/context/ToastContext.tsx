@@ -8,7 +8,6 @@ import {
   Info,
   AlertTriangle,
   X,
-  Sparkles,
   ArrowRight,
 } from 'lucide-react';
 
@@ -41,7 +40,7 @@ interface ToastCardProps {
 const ToastCard: React.FC<ToastCardProps> = ({ toast, onDismiss }) => {
   const [isHovered, setIsHovered] = useState(false);
   const duration = toast.duration ?? 3800;
-  const startTimeRef = useRef<number>(Date.now());
+  const startTimeRef = useRef<number>(0);
   const remainingTimeRef = useRef<number>(duration);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -57,7 +56,7 @@ const ToastCard: React.FC<ToastCardProps> = ({ toast, onDismiss }) => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
-      const elapsed = Date.now() - startTimeRef.current;
+      const elapsed = startTimeRef.current > 0 ? Date.now() - startTimeRef.current : 0;
       remainingTimeRef.current = Math.max(0, remainingTimeRef.current - elapsed);
     }
   }, []);

@@ -23,6 +23,7 @@ import {
   Check,
   X,
   Store,
+  ChevronsUpDown,
 } from 'lucide-react';
 import { MarketplaceModal } from './MarketplaceModal';
 import {
@@ -51,11 +52,23 @@ export const StepsBuilderSection: React.FC = () => {
   const [templateModalOpen, setTemplateModalOpen] = useState(false);
   const [marketplaceModalOpen, setMarketplaceModalOpen] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const allCollapsed = state.steps.every((s) => expandedSteps[s.id] === false);
+
+  const toggleCollapseAll = () => {
+    const next: Record<string, boolean> = {};
+    const targetState = allCollapsed; // if all collapsed, expand all (true); else collapse all (false)
+    state.steps.forEach((s) => {
+      next[s.id] = targetState;
+    });
+    setExpandedSteps(next);
+  };
 
   const getStepIcon = (step: { name?: string; uses?: string; run?: string }) => {
     const str = `${step.name || ''} ${step.uses || ''} ${step.run || ''}`.toLowerCase();
@@ -94,9 +107,12 @@ export const StepsBuilderSection: React.FC = () => {
     e.dataTransfer.effectAllowed = 'move';
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragOver = (e: React.DragEvent, index: number) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
+    if (dragOverIndex !== index) {
+      setDragOverIndex(index);
+    }
   };
 
   const handleDrop = (e: React.DragEvent, targetIndex: number) => {
@@ -105,6 +121,12 @@ export const StepsBuilderSection: React.FC = () => {
       reorderSteps(draggedIndex, targetIndex);
     }
     setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+    setDragOverIndex(null);
   };
 
   const addEnvVar = (stepId: string) => {
@@ -133,14 +155,28 @@ export const StepsBuilderSection: React.FC = () => {
     <div className="space-y-4">
       {/* Action Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <span className="text-xs font-semibold text-[#f0f6fc] flex items-center gap-1.5">
-            <Terminal className="w-3.5 h-3.5 text-[#3fb950]" />
-            Pipeline Steps Sequence
-          </span>
-          <p className="text-[11px] text-[#8b949e]">
-            Executed in sequential order. Drag handle or click arrows to reorder.
-          </p>
+        <div className="flex items-center gap-3">
+          <div>
+            <span className="text-xs font-semibold text-[#f0f6fc] flex items-center gap-1.5">
+              <Terminal className="w-3.5 h-3.5 text-[#3fb950]" />
+              Pipeline Steps Sequence ({state.steps.length})
+            </span>
+            <p className="text-[11px] text-[#8b949e]">
+              Executed sequentially. Drag handle or click arrows to reorder.
+            </p>
+          </div>
+
+          {state.steps.length > 1 && (
+            <button
+              type="button"
+              onClick={toggleCollapseAll}
+              className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold text-[#8b949e] hover:text-[#58a6ff] bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] rounded-xl transition-all ml-auto sm:ml-0"
+              title={allCollapsed ? 'Expand all steps' : 'Collapse all steps'}
+            >
+              <ChevronsUpDown className="w-3.5 h-3.5 text-[#58a6ff]" />
+              <span>{allCollapsed ? 'Expand All' : 'Collapse All'}</span>
+            </button>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
@@ -195,35 +231,40 @@ export const StepsBuilderSection: React.FC = () => {
           {state.steps.map((step, index) => {
             const isExpanded = expandedSteps[step.id] !== false; // default open
             const isDragging = draggedIndex === index;
+            const isDropTarget = draggedIndex !== null && dragOverIndex === index && draggedIndex !== index;
 
             return (
-              <motion.div
-                layout
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.96 }}
-                transition={{ duration: 0.2 }}
-                key={step.id}
-                onDragOver={handleDragOver}
-                onDrop={(e) => handleDrop(e, index)}
-                className={`rounded-2xl border transition-all backdrop-blur-xl ${
-                  isDragging
-                    ? 'opacity-40 border-dashed border-[#58a6ff]'
-                    : 'bg-[#161b22]/60 border-white/[0.08] hover:border-[#58a6ff]/40 hover:bg-[#161b22]/80 shadow-sm hover:shadow-[0_8px_24px_rgba(0,0,0,0.35)]'
-                }`}
-              >
-                {/* Step Card Header */}
-                <div className="flex items-center justify-between p-3 gap-2 select-none">
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    {/* Drag Handle */}
-                    <div
-                      draggable
-                      onDragStart={(e) => handleDragStart(e, index)}
-                      className="cursor-grab active:cursor-grabbing text-[#6e7681] hover:text-[#58a6ff] p-1 rounded hover:bg-[#21262d] transition-colors"
-                      title="Drag handle to reorder this step"
-                    >
-                      <GripVertical className="w-4 h-4" />
-                    </div>
+              <React.Fragment key={step.id}>
+                {isDropTarget && dragOverIndex <= index && (
+                  <div className="h-1 bg-[#58a6ff] rounded-full shadow-[0_0_12px_#388bfd] my-1 animate-pulse transition-all" />
+                )}
+                <motion.div
+                  layout
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.96 }}
+                  transition={{ duration: 0.2 }}
+                  onDragOver={(e) => handleDragOver(e, index)}
+                  onDrop={(e) => handleDrop(e, index)}
+                  className={`rounded-2xl border transition-all backdrop-blur-xl ${
+                    isDragging
+                      ? 'opacity-40 border-dashed border-[#58a6ff] scale-[0.99]'
+                      : 'bg-[#161b22]/60 border-white/[0.08] hover:border-[#58a6ff]/40 hover:bg-[#161b22]/80 shadow-sm hover:shadow-[0_8px_24px_rgba(0,0,0,0.35)]'
+                  }`}
+                >
+                  {/* Step Card Header */}
+                  <div className="flex items-center justify-between p-3 gap-2 select-none">
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      {/* Drag Handle */}
+                      <div
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, index)}
+                        onDragEnd={handleDragEnd}
+                        className="cursor-grab active:cursor-grabbing text-[#6e7681] hover:text-[#58a6ff] p-1 rounded hover:bg-[#21262d] transition-colors"
+                        title="Drag handle to reorder this step"
+                      >
+                        <GripVertical className="w-4 h-4" />
+                      </div>
 
                     {/* Step Index Badge & Icon */}
                     <div className="flex items-center gap-1.5 shrink-0">
@@ -465,9 +506,13 @@ export const StepsBuilderSection: React.FC = () => {
                   )}
                 </AnimatePresence>
               </motion.div>
-            );
-          })}
-        </AnimatePresence>
+              {isDropTarget && dragOverIndex > index && (
+                <div className="h-1 bg-[#58a6ff] rounded-full shadow-[0_0_12px_#388bfd] my-1 animate-pulse transition-all" />
+              )}
+            </React.Fragment>
+          );
+        })}
+      </AnimatePresence>
       </div>
 
       {/* Preset Library Modal via Portal */}

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useDeferredValue, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useWorkflow } from '../../context/WorkflowContext';
 import { useToast } from '../../context/ToastContext';
@@ -18,6 +18,8 @@ import {
   Search,
   X,
   Code2,
+  ChevronUp,
+  ChevronDown,
 } from 'lucide-react';
 import { GitHubIcon } from '../icons/BrandIcons';
 import { CommitToGitHubModal } from './CommitToGitHubModal';
@@ -29,17 +31,15 @@ interface YamlPreviewProps {
 export const YamlPreview: React.FC<YamlPreviewProps> = ({ onSwitchToEditor }) => {
   const { yaml, activeYaml, isManualMode, state } = useWorkflow();
   const displayYaml = activeYaml || yaml;
+  const deferredDisplayYaml = useDeferredValue(displayYaml);
+
   const [copied, setCopied] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
   const [commitModalOpen, setCommitModalOpen] = useState(false);
   const [wrapLines, setWrapLines] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const codeContainerRef = useRef<HTMLDivElement>(null);
 
   // Listen for Escape key to exit fullscreen
   useEffect(() => {
@@ -51,7 +51,6 @@ export const YamlPreview: React.FC<YamlPreviewProps> = ({ onSwitchToEditor }) =>
 
     if (isFullscreen) {
       window.addEventListener('keydown', handleKeyDown);
-      // Prevent background scrolling while in fullscreen
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
@@ -63,21 +62,67 @@ export const YamlPreview: React.FC<YamlPreviewProps> = ({ onSwitchToEditor }) =>
     };
   }, [isFullscreen]);
 
-  // Compute highlighted code line by line
+  // Compute highlighted code line by line with deferred value to prevent main thread blocking
   const highlightedLines = useMemo(() => {
-    if (!mounted) {
-      return displayYaml.split('\n').map((l) => l || ' ');
-    }
     try {
       const grammar = Prism.languages.yaml || Prism.languages.markup;
-      const highlighted = Prism.highlight(displayYaml, grammar, 'yaml');
+      const highlighted = Prism.highlight(deferredDisplayYaml, grammar, 'yaml');
       return highlighted.split('\n');
-    } catch (e) {
-      return displayYaml.split('\n');
+    } catch {
+      return deferredDisplayYaml.split('\n');
     }
-  }, [displayYaml, mounted]);
+  }, [deferredDisplayYaml]);
 
-  const rawLines = useMemo(() => displayYaml.split('\n'), [displayYaml]);
+  const rawLines = useMemo(() => deferredDisplayYaml.split('\n'), [deferredDisplayYaml]);
+
+  // Compute matched line indices for search navigation
+  const matchedIndices = useMemo(() => {
+    const trimmed = searchQuery.trim().toLowerCase();
+    if (!trimmed) return [];
+    const indices: number[] = [];
+    rawLines.forEach((line, idx) => {
+      if (line.toLowerCase().includes(trimmed)) {
+        indices.push(idx);
+      }
+    });
+    return indices;
+  }, [rawLines, searchQuery]);
+
+  const [activeMatchIdx, setActiveMatchIdx] = useState(0);
+
+  // Smooth scroll to active match
+  useEffect(() => {
+    if (matchedIndices.length > 0 && codeContainerRef.current) {
+      const lineIdx = matchedIndices[activeMatchIdx];
+      const targetElement = codeContainerRef.current.querySelector(`[data-line-idx="${lineIdx}"]`);
+      if (targetElement) {
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  }, [activeMatchIdx, matchedIndices]);
+
+  const handleNextMatch = () => {
+    if (matchedIndices.length === 0) return;
+    setActiveMatchIdx((prev) => (prev + 1) % matchedIndices.length);
+  };
+
+  const handlePrevMatch = () => {
+    if (matchedIndices.length === 0) return;
+    setActiveMatchIdx((prev) => (prev - 1 + matchedIndices.length) % matchedIndices.length);
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (e.shiftKey) {
+        handlePrevMatch();
+      } else {
+        handleNextMatch();
+      }
+    } else if (e.key === 'Escape') {
+      setSearchQuery('');
+    }
+  };
 
   const { showToast } = useToast();
 
@@ -181,23 +226,61 @@ export const YamlPreview: React.FC<YamlPreviewProps> = ({ onSwitchToEditor }) =>
           </div>
 
           <div className="flex items-center gap-1.5 flex-nowrap shrink-0">
-            {/* Quick Search */}
-            <div className="relative hidden md:block shrink-0">
-              <Search className="w-3 h-3 text-[#6e7681] absolute left-2.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Filter YAML..."
-                className="pl-7 pr-6 py-1.5 text-xs bg-[#0d1117]/60 border border-white/[0.09] rounded-xl text-[#f0f6fc] placeholder-[#6e7681] focus:outline-none focus:border-[#58a6ff] focus:bg-[#0d1117]/90 w-24 focus:w-36 transition-all backdrop-blur-md"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-[#8b949e] hover:text-[#f0f6fc]"
-                >
-                  <X className="w-3 h-3" />
-                </button>
+            {/* Enhanced Quick Search */}
+            <div className="relative flex items-center shrink-0">
+              <div className="relative flex items-center">
+                <Search className="w-3 h-3 text-[#6e7681] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setActiveMatchIdx(0);
+                  }}
+                  onKeyDown={handleSearchKeyDown}
+                  placeholder="Find in YAML (Enter)..."
+                  className="pl-7 pr-6 py-1.5 text-xs bg-[#0d1117]/70 border border-white/[0.09] rounded-xl text-[#f0f6fc] placeholder-[#6e7681] focus:outline-none focus:border-[#58a6ff] focus:bg-[#0d1117] w-24 sm:w-32 md:focus:w-48 transition-all backdrop-blur-md"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-[#8b949e] hover:text-[#f0f6fc]"
+                    title="Clear search (Esc)"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                )}
+              </div>
+
+              {/* Match Counter & Match Navigation */}
+              {searchQuery.trim() && (
+                <div className="flex items-center gap-1 ml-1.5 px-2 py-0.5 rounded-lg bg-[#21262d]/90 border border-white/[0.08] text-[11px] font-mono text-[#8b949e] shrink-0">
+                  <span>
+                    {matchedIndices.length > 0
+                      ? `${activeMatchIdx + 1}/${matchedIndices.length}`
+                      : '0/0'}
+                  </span>
+                  <div className="flex items-center ml-0.5">
+                    <button
+                      type="button"
+                      onClick={handlePrevMatch}
+                      disabled={matchedIndices.length === 0}
+                      className="p-0.5 hover:text-[#58a6ff] disabled:opacity-30 disabled:hover:text-[#8b949e]"
+                      title="Previous match (Shift+Enter)"
+                    >
+                      <ChevronUp className="w-3 h-3" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleNextMatch}
+                      disabled={matchedIndices.length === 0}
+                      className="p-0.5 hover:text-[#58a6ff] disabled:opacity-30 disabled:hover:text-[#8b949e]"
+                      title="Next match (Enter)"
+                    >
+                      <ChevronDown className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
               )}
             </div>
 
@@ -332,22 +415,33 @@ export const YamlPreview: React.FC<YamlPreviewProps> = ({ onSwitchToEditor }) =>
 
       {/* Code Editor Body with Synchronized Line Numbers */}
       <div
+        ref={codeContainerRef}
         className="relative flex-1 overflow-auto bg-[#0d1117]/60 backdrop-blur-md py-3 text-[13px] font-mono leading-relaxed"
         suppressHydrationWarning
       >
         {highlightedLines.map((lineHtml, idx) => {
           const rawLine = rawLines[idx] || '';
           const isMatch = searchQuery && rawLine.toLowerCase().includes(searchQuery.toLowerCase());
+          const isActiveMatch = isMatch && matchedIndices[activeMatchIdx] === idx;
 
           return (
             <div
               key={idx}
+              data-line-idx={idx}
               className={`flex items-start px-2 transition-colors ${
-                isMatch ? 'bg-[#f0883e]/20' : 'hover:bg-[#161b22]/80'
+                isActiveMatch
+                  ? 'bg-[#388bfd]/30 border-l-2 border-[#58a6ff]'
+                  : isMatch
+                  ? 'bg-[#f0883e]/20'
+                  : 'hover:bg-[#161b22]/80'
               }`}
             >
               {/* Line Number */}
-              <span className="select-none w-10 text-right pr-3 text-[#484f58] font-mono text-[11px] pt-[2px] shrink-0 border-r border-[#21262d]/60 mr-3">
+              <span className={`select-none w-10 text-right pr-3 font-mono text-[11px] pt-[2px] shrink-0 border-r mr-3 transition-colors ${
+                isActiveMatch
+                  ? 'text-[#58a6ff] border-[#58a6ff]/50 font-bold'
+                  : 'text-[#484f58] border-[#21262d]/60'
+              }`}>
                 {idx + 1}
               </span>
 

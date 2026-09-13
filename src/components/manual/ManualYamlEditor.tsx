@@ -67,10 +67,11 @@ export const ManualYamlEditor: React.FC<ManualYamlEditorProps> = ({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const lineNumbersRef = useRef<HTMLDivElement>(null);
   const snippetContainerRef = useRef<HTMLDivElement>(null);
+  const rafScrollRef = useRef<number | null>(null);
 
   const handleSnippetWheel = (e: React.WheelEvent<HTMLDivElement>) => {
     if (snippetContainerRef.current && e.deltaY !== 0) {
-      snippetContainerRef.current.scrollLeft += e.deltaY;
+      snippetContainerRef.current.scrollLeft += e.deltaY * 0.8;
     }
   };
 
@@ -87,12 +88,22 @@ export const ManualYamlEditor: React.FC<ManualYamlEditorProps> = ({
     }
   }, [manualYaml, visualYaml, setManualYaml]);
 
-  // Synchronize scrolling between line numbers and textarea
+  // Synchronize scrolling between line numbers and textarea with requestAnimationFrame
   const handleScroll = (e: React.UIEvent<HTMLTextAreaElement>) => {
-    if (lineNumbersRef.current) {
-      lineNumbersRef.current.scrollTop = e.currentTarget.scrollTop;
-    }
+    const scrollTop = e.currentTarget.scrollTop;
+    if (rafScrollRef.current) cancelAnimationFrame(rafScrollRef.current);
+    rafScrollRef.current = requestAnimationFrame(() => {
+      if (lineNumbersRef.current) {
+        lineNumbersRef.current.scrollTop = scrollTop;
+      }
+    });
   };
+
+  useEffect(() => {
+    return () => {
+      if (rafScrollRef.current) cancelAnimationFrame(rafScrollRef.current);
+    };
+  }, []);
 
   // Compute lines
   const lines = useMemo(() => {

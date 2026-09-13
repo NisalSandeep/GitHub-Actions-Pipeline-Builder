@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useMemo, useCallback } from 'react';
+import React, { createContext, useContext, useState, useMemo, useCallback, useDeferredValue } from 'react';
 import {
   WorkflowState,
   GlobalConfig,
@@ -86,10 +86,11 @@ export const WorkflowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const visualYaml = useMemo(() => generateYaml(state), [state]);
   const activeYaml = isManualMode ? (manualYaml || visualYaml) : visualYaml;
+  const deferredActiveYaml = useDeferredValue(activeYaml);
 
   const validationResult = useMemo(() => {
-    return validateWorkflowYaml(activeYaml);
-  }, [activeYaml]);
+    return validateWorkflowYaml(deferredActiveYaml);
+  }, [deferredActiveYaml]);
 
   const syncVisualToManual = useCallback(() => {
     setManualYaml(visualYaml);
@@ -510,54 +511,96 @@ export const WorkflowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setState(DEFAULT_WORKFLOW_STATE);
   }, []);
 
+  const contextValue = useMemo<WorkflowContextType>(() => ({
+    state,
+    yaml: visualYaml,
+    manualYaml,
+    setManualYaml,
+    isManualMode,
+    setIsManualMode,
+    activeYaml,
+    validationResult,
+    syncVisualToManual,
+    requiredSecrets,
+    updateGlobal,
+    updateTriggerPush,
+    updateTriggerPR,
+    updateTriggerSchedule,
+    updateTriggerDispatch,
+    updateLanguageType,
+    updateLanguageNode,
+    updateLanguagePython,
+    updateLanguageGo,
+    updateLanguageJava,
+    updateLanguageRust,
+    updateLanguagePhp,
+    updateLanguageDotnet,
+    updateLanguageRuby,
+    updateLanguageFlutter,
+    updateCaching,
+    addStep,
+    updateStep,
+    removeStep,
+    duplicateStep,
+    moveStep,
+    reorderSteps,
+    updateDeployment,
+    updateDockerDeployment,
+    updateAwsDeployment,
+    updateVercelDeployment,
+    updateGitHubPagesDeployment,
+    updateGitHubEnvironment,
+    updateMatrix,
+    updateGlobalEnv,
+    importYamlToVisual,
+    loadPreset,
+    resetWorkflow,
+  }), [
+    state,
+    visualYaml,
+    manualYaml,
+    isManualMode,
+    activeYaml,
+    validationResult,
+    syncVisualToManual,
+    requiredSecrets,
+    updateGlobal,
+    updateTriggerPush,
+    updateTriggerPR,
+    updateTriggerSchedule,
+    updateTriggerDispatch,
+    updateLanguageType,
+    updateLanguageNode,
+    updateLanguagePython,
+    updateLanguageGo,
+    updateLanguageJava,
+    updateLanguageRust,
+    updateLanguagePhp,
+    updateLanguageDotnet,
+    updateLanguageRuby,
+    updateLanguageFlutter,
+    updateCaching,
+    addStep,
+    updateStep,
+    removeStep,
+    duplicateStep,
+    moveStep,
+    reorderSteps,
+    updateDeployment,
+    updateDockerDeployment,
+    updateAwsDeployment,
+    updateVercelDeployment,
+    updateGitHubPagesDeployment,
+    updateGitHubEnvironment,
+    updateMatrix,
+    updateGlobalEnv,
+    importYamlToVisual,
+    loadPreset,
+    resetWorkflow,
+  ]);
+
   return (
-    <WorkflowContext.Provider
-      value={{
-        state,
-        yaml: visualYaml,
-        manualYaml,
-        setManualYaml,
-        isManualMode,
-        setIsManualMode,
-        activeYaml,
-        validationResult,
-        syncVisualToManual,
-        requiredSecrets,
-        updateGlobal,
-        updateTriggerPush,
-        updateTriggerPR,
-        updateTriggerSchedule,
-        updateTriggerDispatch,
-        updateLanguageType,
-        updateLanguageNode,
-        updateLanguagePython,
-        updateLanguageGo,
-        updateLanguageJava,
-        updateLanguageRust,
-        updateLanguagePhp,
-        updateLanguageDotnet,
-        updateLanguageRuby,
-        updateLanguageFlutter,
-        updateCaching,
-        addStep,
-        updateStep,
-        removeStep,
-        duplicateStep,
-        moveStep,
-        reorderSteps,
-        updateDeployment,
-        updateDockerDeployment,
-        updateAwsDeployment,
-        updateVercelDeployment,
-        updateGitHubPagesDeployment,
-        updateGitHubEnvironment,
-        updateMatrix,
-        updateGlobalEnv,
-        importYamlToVisual,
-        loadPreset,
-        resetWorkflow,
-      }}
-    >
+    <WorkflowContext.Provider value={contextValue}>
       {children}
     </WorkflowContext.Provider>
   );

@@ -128,7 +128,7 @@ export const Header: React.FC = () => {
         </div>
 
         {/* Quick Stats Badges with Frosted Glass Pills */}
-        <div className="hidden xl:flex items-center gap-2 text-xs">
+        <div className="hidden md:flex items-center gap-2 text-xs">
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] backdrop-blur-md text-[#94a3b8] shadow-sm transition-all">
             <GitBranch className="w-3.5 h-3.5 text-[#58a6ff]" />
             <span>Triggers: <strong className="text-[#f0f6fc]">{triggersCount}</strong></span>

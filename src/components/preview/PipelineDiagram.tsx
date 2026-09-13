@@ -61,6 +61,22 @@ export const PipelineDiagram: React.FC = () => {
   const [activeStepIdx, setActiveStepIdx] = useState<number>(-1);
   const [elapsedTime, setElapsedTime] = useState<number>(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
+
+  const clearAllTimers = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    timeoutsRef.current.forEach((id) => clearTimeout(id));
+    timeoutsRef.current = [];
+  };
+
+  const addTimeout = (fn: () => void, ms: number) => {
+    const id = setTimeout(fn, ms);
+    timeoutsRef.current.push(id);
+    return id;
+  };
 
   // Total build steps count
   const allBuildSteps = [
@@ -74,27 +90,29 @@ export const PipelineDiagram: React.FC = () => {
     ...steps.map((s, idx) => ({ id: s.id, name: s.name || `Step ${idx + 1}`, type: 'step' })),
   ];
 
-  // Stop timer on unmount
+  // Stop all timers on unmount
   useEffect(() => {
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      clearAllTimers();
     };
   }, []);
 
+  const startTimeRef = useRef<number>(0);
+
   // Run Pipeline Simulation
   const handleStartSimulation = () => {
-    if (timerRef.current) clearInterval(timerRef.current);
+    clearAllTimers();
     setSimState('triggering');
     setActiveStepIdx(-1);
     setElapsedTime(0);
 
-    const startTime = Date.now();
+    startTimeRef.current = Date.now();
     timerRef.current = setInterval(() => {
-      setElapsedTime(parseFloat(((Date.now() - startTime) / 1000).toFixed(1)));
+      setElapsedTime(parseFloat(((Date.now() - startTimeRef.current) / 1000).toFixed(1)));
     }, 100);
 
     // Stage 1: Trigger Phase (700ms)
-    setTimeout(() => {
+    addTimeout(() => {
       setSimState('building');
       setActiveStepIdx(0);
 
@@ -103,18 +121,18 @@ export const PipelineDiagram: React.FC = () => {
       const stepDuration = Math.max(250, Math.min(450, 1600 / totalSteps));
 
       allBuildSteps.forEach((_, idx) => {
-        setTimeout(() => {
+        addTimeout(() => {
           setActiveStepIdx(idx);
         }, idx * stepDuration);
       });
 
       // After all build steps complete
       const buildDuration = totalSteps * stepDuration + 200;
-      setTimeout(() => {
+      addTimeout(() => {
         if (isMultiJob) {
           // Stage 3: Deployment Phase
           setSimState('deploying');
-          setTimeout(() => {
+          addTimeout(() => {
             finishSimulation();
           }, 900);
         } else {
@@ -125,10 +143,7 @@ export const PipelineDiagram: React.FC = () => {
   };
 
   const finishSimulation = () => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
+    clearAllTimers();
     setSimState('succeeded');
     confetti({
       particleCount: 50,
@@ -139,10 +154,7 @@ export const PipelineDiagram: React.FC = () => {
   };
 
   const handleResetSimulation = () => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
+    clearAllTimers();
     setSimState('idle');
     setActiveStepIdx(-1);
     setElapsedTime(0);

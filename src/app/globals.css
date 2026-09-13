@@ -127,9 +127,11 @@ pre[class*="language-"] {
   font-weight: bold;
 }
 
-/* Interactive element smoothness */
+/* Interactive element smoothness - targeted properties prevent layout reflows during typing */
 input, textarea, select, button {
-  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+  transition-duration: 0.15s;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 input:focus, textarea:focus {

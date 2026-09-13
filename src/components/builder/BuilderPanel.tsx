@@ -58,25 +58,22 @@ interface SectionMeta {
 
 const slideVariants = {
   enter: (direction: number) => ({
-    x: direction > 0 ? 26 : -26,
+    x: direction > 0 ? 20 : -20,
     opacity: 0,
-    filter: 'blur(4px)',
   }),
   center: {
     x: 0,
     opacity: 1,
-    filter: 'blur(0px)',
     transition: {
-      duration: 0.22,
+      duration: 0.2,
       ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
     },
   },
   exit: (direction: number) => ({
-    x: direction > 0 ? -26 : 26,
+    x: direction > 0 ? -20 : 20,
     opacity: 0,
-    filter: 'blur(4px)',
     transition: {
-      duration: 0.16,
+      duration: 0.15,
       ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
     },
   }),

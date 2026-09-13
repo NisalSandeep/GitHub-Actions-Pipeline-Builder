@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useWorkflow } from '../../context/WorkflowContext';
 import { useToast } from '../../context/ToastContext';
-import { KeyRound, Copy, Check, ExternalLink, ShieldAlert, CheckCircle2 } from 'lucide-react';
+import { KeyRound, Copy, Check, CheckCircle2, ShieldAlert } from 'lucide-react';
 
 export const SecretsInspector: React.FC = () => {
   const { requiredSecrets } = useWorkflow();
@@ -48,9 +48,28 @@ export const SecretsInspector: React.FC = () => {
             Required GitHub Secrets ({requiredSecrets.length})
           </h3>
         </div>
-        <span className="text-[11px] text-[#8b949e]">
-          Configure in GitHub Repo: <strong>Settings &gt; Secrets and variables &gt; Actions</strong>
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="text-[11px] text-[#8b949e]">
+            Configure in: <strong>Settings &gt; Secrets &gt; Actions</strong>
+          </span>
+          {requiredSecrets.length > 1 && (
+            <button
+              type="button"
+              onClick={() => {
+                navigator.clipboard.writeText(requiredSecrets.map((s) => s.name).join('\n'));
+                showToast({
+                  type: 'success',
+                  title: 'All Secret Names Copied',
+                  description: `${requiredSecrets.length} secret names copied to clipboard.`,
+                });
+              }}
+              className="text-[11px] font-semibold text-[#58a6ff] hover:underline flex items-center gap-1"
+            >
+              <Copy className="w-3 h-3" />
+              <span>Copy All</span>
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="space-y-3">
