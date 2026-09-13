@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="100%" height="100%">
+  <defs>
+    <linearGradient id="appBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1f242c" />
+      <stop offset="50%" stop-color="#161b22" />
+      <stop offset="100%" stop-color="#0a0d12" />
+    </linearGradient>
+    <linearGradient id="appRimGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#58a6ff" />
+      <stop offset="50%" stop-color="#2f81f7" />
+      <stop offset="100%" stop-color="#1f6feb" />
+    </linearGradient>
+    <filter id="appGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#2f81f7" flood-opacity="0.5" />
+    </filter>
+  </defs>
+
+  <!-- Base App Tile with Glowing Rim -->
+  <rect x="8" y="8" width="112" height="112" rx="26" fill="url(#appBgGrad)" stroke="url(#appRimGrad)" stroke-width="4" filter="url(#appGlow)" />
+  
+  <!-- Subtle specular sheen on top edge -->
+  <ellipse cx="64" cy="22" rx="42" ry="10" fill="#ffffff" fill-opacity="0.12" />
+
+  <!-- Pipeline Stage Links (Connecting Traces) -->
+  <path d="M42 64 C 54 64, 56 42, 68 42 L 76 42" fill="none" stroke="#58a6ff" stroke-width="4" stroke-linecap="round" />
+  <path d="M42 64 L 76 64" fill="none" stroke="#3fb950" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="5 3" />
+  <path d="M42 64 C 54 64, 56 86, 68 86 L 76 86" fill="none" stroke="#bc8cff" stroke-width="4" stroke-linecap="round" />
+
+  <!-- Trigger Event Node (Start Circle) -->
+  <circle cx="34" cy="64" r="12" fill="#238636" stroke="#3fb950" stroke-width="3" />
+  <circle cx="34" cy="64" r="4.5" fill="#ffffff" />
+
+  <!-- Build Job Node -->
+  <rect x="76" y="32" width="32" height="20" rx="7" fill="#1f6feb" stroke="#79c0ff" stroke-width="2.5" />
+  <path d="M86 42 L 90 46 L 98 38" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- Test Job Node -->
+  <rect x="76" y="54" width="32" height="20" rx="7" fill="#238636" stroke="#56d364" stroke-width="2.5" />
+  <path d="M86 64 L 90 68 L 98 60" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- Deploy Job Node -->
+  <rect x="76" y="76" width="32" height="20" rx="7" fill="#8957e5" stroke="#d2a8ff" stroke-width="2.5" />
+  <polygon points="90,81 96,86 90,91" fill="#ffffff" />
+</svg>

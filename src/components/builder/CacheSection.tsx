@@ -107,11 +107,11 @@ export const CacheSection: React.FC = () => {
                   <textarea
                     value={state.caching.customPaths}
                     onChange={(e) => updateCaching({ customPaths: e.target.value })}
-                    placeholder=".next/cache&#10;~/.cache/pip"
+                    placeholder=".build/cache&#10;~/.cache/pip"
                     rows={2}
                     className="w-full px-3 py-2 text-xs bg-[#0d1117]/60 border border-white/[0.09] rounded-xl text-[#f0f6fc] font-mono focus:outline-none focus:border-[#58a6ff] focus:ring-1 focus:ring-[#58a6ff]/30 transition-all backdrop-blur-md"
                   />
-                  <span className="text-[10px] text-[#8b949e] mt-1 block">One path per line (e.g. .next/cache)</span>
+                  <span className="text-[10px] text-[#8b949e] mt-1 block">One path per line (e.g. .build/cache)</span>
                 </div>
               </div>
             </div>

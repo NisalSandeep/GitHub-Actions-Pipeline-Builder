@@ -253,13 +253,13 @@ export const WORKFLOW_PRESETS: WorkflowPreset[] = [
   },
   {
     id: 'nextjs-vercel',
-    name: 'Next.js + Vercel CD',
-    badge: 'Vercel & Next.js',
-    description: 'Next.js automated build, test, and production deployment pipeline on Vercel.',
+    name: 'Full-Stack Web + Vercel CD',
+    badge: 'Edge Hosting',
+    description: 'Automated web application build, test suite, and production edge deployment on Vercel.',
     state: {
       global: {
         ...DEFAULT_WORKFLOW_STATE.global,
-        workflowName: 'Next.js Continuous Delivery',
+        workflowName: 'Production Web Continuous Delivery',
         filename: 'vercel-deploy.yml',
       },
       language: {
@@ -280,13 +280,13 @@ export const WORKFLOW_PRESETS: WorkflowPreset[] = [
         },
         {
           id: 'step-2',
-          name: 'Run Linter & TypeScript Check',
+          name: 'Run Linter & Code Quality',
           run: 'npm run lint',
           env: [],
         },
         {
           id: 'step-3',
-          name: 'Build Next.js Application',
+          name: 'Build Production Bundle',
           run: 'npm run build',
           env: [{ key: 'NODE_ENV', value: 'production' }],
         },
